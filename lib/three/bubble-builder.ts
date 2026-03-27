@@ -42,7 +42,7 @@ export function buildBubbleBase(config: BubbleStyle): {
 
   const zOffset =
     -0.5 *
-    (geometry.boundingBox!.max.z - geometry.boundingBox!.min.z);
+    (geometry.boundingBox!.max.z + geometry.boundingBox!.min.z);
   geometry.translate(0, 0, zOffset);
   geometry.computeBoundingBox();
 

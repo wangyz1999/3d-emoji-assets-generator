@@ -25,6 +25,8 @@ export async function loadEmojiSVG(
           const shapes = SVGLoader.createShapes(path);
           const pathMaterial = new THREE.MeshStandardMaterial({
             color: path.color,
+            emissive: path.color,
+            emissiveIntensity: 0.2,
             roughness: 0.3,
             metalness: 0.1,
             side: THREE.DoubleSide,

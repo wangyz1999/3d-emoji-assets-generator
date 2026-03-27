@@ -80,26 +80,25 @@ export default function PreviewCanvas() {
       <Canvas
         camera={{ position: [0, 5, 8], fov: 45 }}
         shadows
-        gl={{ antialias: true, preserveDrawingBuffer: true }}
+        dpr={[1, 2]}
+        gl={{
+          antialias: true,
+          toneMapping: THREE.NoToneMapping,
+        }}
       >
         <color attach="background" args={["#141419"]} />
-        <fog attach="fog" args={["#141419", 15, 40]} />
+        <fogExp2 attach="fog" args={["#141419", 0.02]} />
 
-        <ambientLight intensity={0.4} />
+        <ambientLight intensity={0.6} />
         <directionalLight
-          position={[5, 5, 5]}
-          intensity={2}
+          position={[5, 8, 5]}
+          intensity={1.5}
           castShadow
           shadow-mapSize-width={1024}
           shadow-mapSize-height={1024}
+          shadow-bias={-0.001}
         />
-        <pointLight position={[-5, 0, -5]} intensity={1} />
-        <spotLight
-          position={[0, 5, 0]}
-          intensity={5}
-          angle={Math.PI / 4}
-          penumbra={0.5}
-        />
+        <pointLight position={[-5, 0, -5]} intensity={1} color="#e0e7ff" />
 
         <SceneContent />
 
