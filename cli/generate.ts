@@ -1,0 +1,158 @@
+import puppeteer from "puppeteer";
+import { writeFile, mkdir } from "fs/promises";
+import { resolve, join } from "path";
+import type { StyleConfig, ExportFormat } from "../lib/types";
+import { JSDELIVR_API_URL, TWEMOJI_BASE_URL } from "../lib/constants";
+
+interface GenerateOptions {
+  config: StyleConfig;
+  emojis: string[];
+  format: ExportFormat;
+  output: string;
+  baseUrl: string;
+}
+
+async function fetchAllEmojiCodes(): Promise<string[]> {
+  const res = await fetch(JSDELIVR_API_URL);
+  const data = await res.json();
+
+  function findSvgDir(files: any[], path: string[]): any[] | null {
+    if (path.length === 0) return files;
+    for (const entry of files) {
+      if (entry.files && entry.name === path[0]) {
+        return findSvgDir(entry.files, path.slice(1));
+      }
+    }
+    return null;
+  }
+
+  const svgFiles = findSvgDir(data.files, ["assets", "svg"]);
+  if (!svgFiles) throw new Error("Could not find emoji SVG files");
+
+  return svgFiles
+    .filter((f: any) => !f.files && f.name.endsWith(".svg"))
+    .map((f: any) => f.name.replace(".svg", ""))
+    .sort();
+}
+
+function buildQueryParams(config: StyleConfig, emoji: string, format: ExportFormat): string {
+  const params = new URLSearchParams();
+  params.set("emoji", emoji);
+  params.set("format", format);
+  params.set("shape", config.shape);
+
+  if (config.shape === "coin") {
+    params.set("radius", String(config.radius));
+    params.set("thickness", String(config.thickness));
+    params.set("rimWidth", String(config.rimWidth));
+    params.set("rimColor", config.rimColor);
+    params.set("faceColor", config.faceColor);
+    params.set("metalness", String(config.metalness));
+    params.set("roughness", String(config.roughness));
+    params.set("emojiScale", String(config.emojiScale));
+    params.set("doubleSided", String(config.doubleSided));
+  } else {
+    params.set("radius", String(config.radius));
+    params.set("depth", String(config.depth));
+    params.set("tailLength", String(config.tailLength));
+    params.set("tailWidth", String(config.tailWidth));
+    params.set("color", config.color);
+    params.set("bevelSize", String(config.bevelSize));
+    params.set("roughness", String(config.roughness));
+    params.set("emojiScale", String(config.emojiScale));
+    params.set("doubleSided", String(config.doubleSided));
+  }
+
+  return params.toString();
+}
+
+export async function generate(options: GenerateOptions): Promise<void> {
+  const { config, format, output, baseUrl } = options;
+  let { emojis } = options;
+
+  if (emojis.length === 1 && emojis[0] === "all") {
+    console.log("Fetching complete emoji list...");
+    emojis = await fetchAllEmojiCodes();
+    console.log(`Found ${emojis.length} emojis`);
+  }
+
+  const outputDir = resolve(output);
+  await mkdir(outputDir, { recursive: true });
+
+  console.log(`Launching headless browser...`);
+  const browser = await puppeteer.launch({
+    headless: true,
+    args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-gpu"],
+  });
+
+  const total = emojis.length;
+  let completed = 0;
+  let errors = 0;
+
+  for (const emoji of emojis) {
+    const page = await browser.newPage();
+
+    try {
+      const query = buildQueryParams(config, emoji, format);
+      const url = `${baseUrl}/cli-render?${query}`;
+
+      await page.goto(url, { waitUntil: "networkidle2", timeout: 30000 });
+
+      // Wait for generation to complete
+      const result = await page.waitForFunction(
+        () => {
+          const w = window as any;
+          return w.__exportResult?.done || document.querySelector("#status")?.getAttribute("data-error");
+        },
+        { timeout: 30000 }
+      );
+
+      const hasError = await page.evaluate(
+        () => document.querySelector("#status")?.getAttribute("data-error") === "true"
+      );
+
+      if (hasError) {
+        const errMsg = await page.evaluate(
+          () => document.querySelector("#status")?.textContent
+        );
+        console.error(`  [FAIL] ${emoji}: ${errMsg}`);
+        errors++;
+        continue;
+      }
+
+      const exportData = await page.evaluate(() => {
+        const w = window as any;
+        return w.__exportResult;
+      });
+
+      if (exportData?.buffer) {
+        const ext = exportData.filename.split(".").pop()!;
+        const filePath = join(outputDir, `${emoji}.${ext}`);
+
+        let data: Buffer;
+        if (typeof exportData.buffer === "string") {
+          data = Buffer.from(exportData.buffer, "utf-8");
+        } else {
+          data = Buffer.from(exportData.buffer);
+        }
+
+        await writeFile(filePath, data);
+        completed++;
+        const pct = ((completed / total) * 100).toFixed(1);
+        process.stdout.write(`\r  [${pct}%] ${completed}/${total} generated (${errors} errors)`);
+      }
+    } catch (err) {
+      console.error(`\n  [FAIL] ${emoji}: ${err}`);
+      errors++;
+    } finally {
+      await page.close();
+    }
+  }
+
+  await browser.close();
+
+  console.log(`\n\nDone! Generated ${completed}/${total} files in ${outputDir}`);
+  if (errors > 0) {
+    console.log(`${errors} emoji(s) failed.`);
+  }
+}

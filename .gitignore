@@ -20,6 +20,9 @@
 # production
 /build
 
+# generated 3D assets
+/output
+
 # misc
 .DS_Store
 *.pem

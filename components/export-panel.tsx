@@ -1,0 +1,97 @@
+"use client";
+
+import { useState } from "react";
+import * as THREE from "three";
+import { useAppStore } from "@/lib/store";
+import { exportModel } from "@/lib/three/exporters";
+import { EXPORT_FORMATS } from "@/lib/constants";
+import type { ExportFormat } from "@/lib/types";
+
+export default function ExportPanel() {
+  const { selectedEmoji, exportFormat, setExportFormat, isExporting, setIsExporting } =
+    useAppStore();
+  const [error, setError] = useState<string | null>(null);
+
+  const handleExport = async () => {
+    if (!selectedEmoji || isExporting) return;
+
+    const modelRef = (
+      window as unknown as Record<string, { current: THREE.Group | null }>
+    ).__currentModel;
+    if (!modelRef?.current) {
+      setError("No model loaded yet");
+      return;
+    }
+
+    setIsExporting(true);
+    setError(null);
+
+    try {
+      await exportModel(modelRef.current, exportFormat, selectedEmoji.code);
+    } catch (err) {
+      console.error("Export failed:", err);
+      setError("Export failed. Please try again.");
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  return (
+    <div className="flex flex-col gap-3">
+      <label className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
+        Export
+      </label>
+
+      <div className="grid grid-cols-2 gap-1.5">
+        {EXPORT_FORMATS.map((fmt) => (
+          <button
+            key={fmt.id}
+            onClick={() => setExportFormat(fmt.id)}
+            className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
+              exportFormat === fmt.id
+                ? "bg-blue-600 text-white"
+                : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-white"
+            }`}
+            title={fmt.description}
+          >
+            .{fmt.name}
+          </button>
+        ))}
+      </div>
+
+      <button
+        onClick={handleExport}
+        disabled={!selectedEmoji || isExporting}
+        className="flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition-all hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
+      >
+        {isExporting ? (
+          <>
+            <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+            Exporting...
+          </>
+        ) : (
+          <>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+            Download {selectedEmoji ? `${selectedEmoji.code}.${exportFormat}` : ""}
+          </>
+        )}
+      </button>
+
+      {error && <p className="text-xs text-red-400">{error}</p>}
+    </div>
+  );
+}
