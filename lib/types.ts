@@ -30,7 +30,18 @@ export interface BubbleStyle {
 
 export type StyleConfig = CoinStyle | BubbleStyle;
 
+export type FileNaming = "unicode" | "shortname";
+
 export interface EmojiEntry {
   code: string;
   url: string;
+  name: string;
+  shortname: string;
+  category: string;
+  order: number;
+}
+
+export interface EmojiGroup {
+  base: EmojiEntry;
+  variants: EmojiEntry[];
 }

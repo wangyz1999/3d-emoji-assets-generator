@@ -1,15 +1,44 @@
 import puppeteer from "puppeteer";
-import { writeFile, mkdir } from "fs/promises";
+import { writeFile, mkdir, readFile } from "fs/promises";
 import { resolve, join } from "path";
-import type { StyleConfig, ExportFormat } from "../lib/types";
-import { JSDELIVR_API_URL, TWEMOJI_BASE_URL } from "../lib/constants";
+import type { StyleConfig, ExportFormat, FileNaming } from "../lib/types";
+import { JSDELIVR_API_URL } from "../lib/constants";
+
+interface RawEmoji {
+  emoji: string;
+  name: string;
+  shortname: string;
+  unicode: string;
+  category: string;
+}
 
 interface GenerateOptions {
   config: StyleConfig;
   emojis: string[];
   format: ExportFormat;
+  naming: FileNaming;
   output: string;
   baseUrl: string;
+}
+
+function unicodeToTwemojiCode(unicode: string): string {
+  return unicode
+    .split(" ")
+    .map((cp) => cp.toLowerCase())
+    .join("-");
+}
+
+async function loadEmojiMap(): Promise<Map<string, RawEmoji>> {
+  const dataPath = resolve(__dirname, "..", "data", "emojis.json");
+  const raw = JSON.parse(await readFile(dataPath, "utf-8"));
+  const map = new Map<string, RawEmoji>();
+  for (const e of raw.emojis as RawEmoji[]) {
+    if (e.unicode) {
+      const code = unicodeToTwemojiCode(e.unicode);
+      map.set(code, e);
+    }
+  }
+  return map;
 }
 
 async function fetchAllEmojiCodes(): Promise<string[]> {
@@ -33,6 +62,20 @@ async function fetchAllEmojiCodes(): Promise<string[]> {
     .filter((f: any) => !f.files && f.name.endsWith(".svg"))
     .map((f: any) => f.name.replace(".svg", ""))
     .sort();
+}
+
+function getOutputFilename(
+  emojiCode: string,
+  naming: FileNaming,
+  emojiMap: Map<string, RawEmoji>
+): string {
+  if (naming === "shortname") {
+    const entry = emojiMap.get(emojiCode);
+    if (entry) {
+      return entry.shortname.replace(/:/g, "");
+    }
+  }
+  return emojiCode;
 }
 
 function buildQueryParams(config: StyleConfig, emoji: string, format: ExportFormat): string {
@@ -67,8 +110,11 @@ function buildQueryParams(config: StyleConfig, emoji: string, format: ExportForm
 }
 
 export async function generate(options: GenerateOptions): Promise<void> {
-  const { config, format, output, baseUrl } = options;
+  const { config, format, naming, output, baseUrl } = options;
   let { emojis } = options;
+
+  console.log("Loading emoji data...");
+  const emojiMap = await loadEmojiMap();
 
   if (emojis.length === 1 && emojis[0] === "all") {
     console.log("Fetching complete emoji list...");
@@ -98,7 +144,6 @@ export async function generate(options: GenerateOptions): Promise<void> {
 
       await page.goto(url, { waitUntil: "networkidle2", timeout: 30000 });
 
-      // Wait for generation to complete
       const result = await page.waitForFunction(
         () => {
           const w = window as any;
@@ -127,7 +172,8 @@ export async function generate(options: GenerateOptions): Promise<void> {
 
       if (exportData?.buffer) {
         const ext = exportData.filename.split(".").pop()!;
-        const filePath = join(outputDir, `${emoji}.${ext}`);
+        const outputName = getOutputFilename(emoji, naming, emojiMap);
+        const filePath = join(outputDir, `${outputName}.${ext}`);
 
         let data: Buffer;
         if (typeof exportData.buffer === "string") {

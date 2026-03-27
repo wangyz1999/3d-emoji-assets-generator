@@ -4,15 +4,16 @@ import { useState, useMemo } from "react";
 import { useAppStore } from "@/lib/store";
 
 export default function CommandPreview() {
-  const { styleConfig, exportFormat, selectedEmoji } = useAppStore();
+  const { styleConfig, exportFormat, fileNaming, selectedEmoji } = useAppStore();
   const [expanded, setExpanded] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  const command = useMemo(() => {
+  const buildParts = useMemo(() => {
     const parts = ["npx 3d-emoji-gen generate"];
 
     parts.push(`--shape ${styleConfig.shape}`);
     parts.push(`--format ${exportFormat}`);
+    parts.push(`--naming ${fileNaming}`);
     parts.push("--output ./output/");
 
     if (styleConfig.shape === "coin") {
@@ -37,23 +38,23 @@ export default function CommandPreview() {
       if (!styleConfig.doubleSided) parts.push("--single-sided");
     }
 
+    return parts;
+  }, [styleConfig, exportFormat, fileNaming]);
+
+  const command = useMemo(() => {
+    const parts = [...buildParts];
     if (selectedEmoji) {
       parts.push(`--emojis ${selectedEmoji.code}`);
     } else {
       parts.push("--emojis all");
     }
-
     return parts.join(" \\\n  ");
-  }, [styleConfig, exportFormat, selectedEmoji]);
+  }, [buildParts, selectedEmoji]);
 
   const batchCommand = useMemo(() => {
-    const parts = [...command.split(" \\\n  ")];
-    const emojiIdx = parts.findIndex((p) => p.startsWith("--emojis"));
-    if (emojiIdx >= 0) {
-      parts[emojiIdx] = "--emojis all";
-    }
+    const parts = [...buildParts, "--emojis all"];
     return parts.join(" \\\n  ");
-  }, [command]);
+  }, [buildParts]);
 
   const handleCopy = async (text: string) => {
     const singleLine = text.replace(/ \\\n\s+/g, " ");

@@ -3,7 +3,7 @@
 import { Command } from "commander";
 import { generate } from "./generate";
 import { DEFAULT_COIN, DEFAULT_BUBBLE } from "../lib/constants";
-import type { CoinStyle, BubbleStyle, ExportFormat } from "../lib/types";
+import type { CoinStyle, BubbleStyle, ExportFormat, FileNaming } from "../lib/types";
 
 const program = new Command();
 
@@ -19,6 +19,7 @@ program
   .requiredOption("--format <format>", "Export format: glb, obj, stl, usdz", "glb")
   .requiredOption("--output <dir>", "Output directory", "./output")
   .requiredOption("--emojis <codes>", "Comma-separated emoji codes or 'all'", "all")
+  .option("--naming <type>", "File naming: unicode or shortname", "unicode")
   .option("--base-url <url>", "Base URL of the running dev server", "http://localhost:3000")
   // Coin options
   .option("--radius <n>", "Coin/bubble radius", String(DEFAULT_COIN.radius))
@@ -39,6 +40,7 @@ program
   .action(async (opts) => {
     const shape = opts.shape as "coin" | "bubble";
     const format = opts.format as ExportFormat;
+    const naming = opts.naming as FileNaming;
     const emojis = opts.emojis.split(",").map((s: string) => s.trim());
 
     let config: CoinStyle | BubbleStyle;
@@ -74,6 +76,7 @@ program
     console.log(`\n3D Emoji Generator`);
     console.log(`  Shape:  ${shape}`);
     console.log(`  Format: ${format}`);
+    console.log(`  Naming: ${naming}`);
     console.log(`  Emojis: ${emojis.join(", ")}`);
     console.log(`  Output: ${opts.output}\n`);
 
@@ -81,6 +84,7 @@ program
       config,
       emojis,
       format,
+      naming,
       output: opts.output,
       baseUrl: opts.baseUrl,
     });

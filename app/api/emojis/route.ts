@@ -1,42 +1,26 @@
 import { NextResponse } from "next/server";
-import { JSDELIVR_API_URL, TWEMOJI_BASE_URL } from "@/lib/constants";
+import { TWEMOJI_BASE_URL } from "@/lib/constants";
 import type { EmojiEntry } from "@/lib/types";
+import emojisData from "@/data/emojis.json";
 
-interface JsDelivrFile {
+interface RawEmoji {
+  emoji: string;
   name: string;
-  hash: string;
-  size: number;
+  shortname: string;
+  unicode: string;
+  html: string;
+  category: string;
+  order: string;
 }
 
-interface JsDelivrDir {
-  type: "directory";
-  name: string;
-  files: (JsDelivrFile | JsDelivrDir)[];
-}
-
-interface JsDelivrPackage {
-  type: string;
-  name: string;
-  version: string;
-  files: (JsDelivrFile | JsDelivrDir)[];
+function unicodeToTwemojiCode(unicode: string): string {
+  return unicode
+    .split(" ")
+    .map((cp) => cp.toLowerCase())
+    .join("-");
 }
 
 let cachedEmojis: EmojiEntry[] | null = null;
-
-function findSvgDir(
-  files: (JsDelivrFile | JsDelivrDir)[],
-  path: string[]
-): (JsDelivrFile | JsDelivrDir)[] | null {
-  if (path.length === 0) return files;
-
-  const target = path[0];
-  for (const entry of files) {
-    if ("files" in entry && entry.name === target) {
-      return findSvgDir(entry.files, path.slice(1));
-    }
-  }
-  return null;
-}
 
 export async function GET() {
   if (cachedEmojis) {
@@ -44,41 +28,35 @@ export async function GET() {
   }
 
   try {
-    const res = await fetch(JSDELIVR_API_URL, {
-      next: { revalidate: 86400 },
-    });
+    const raw = emojisData.emojis as RawEmoji[];
 
-    if (!res.ok) {
-      throw new Error(`jsDelivr API returned ${res.status}`);
+    const seen = new Set<string>();
+    const emojis: EmojiEntry[] = [];
+
+    for (let i = 0; i < raw.length; i++) {
+      const e = raw[i];
+      if (!e.unicode || !e.name) continue;
+      const code = unicodeToTwemojiCode(e.unicode);
+      if (seen.has(code)) continue;
+      seen.add(code);
+      const numOrder = e.order ? parseInt(e.order, 10) : NaN;
+      emojis.push({
+        code,
+        url: `${TWEMOJI_BASE_URL}/${code}.svg`,
+        name: e.name,
+        shortname: e.shortname.replace(/:/g, ""),
+        category: e.category || "Other",
+        order: Number.isNaN(numOrder) ? 100_000 + i : numOrder,
+      });
     }
 
-    const data: JsDelivrPackage = await res.json();
-    const svgFiles = findSvgDir(data.files, ["assets", "svg"]);
-
-    if (!svgFiles) {
-      throw new Error("Could not find assets/svg directory in package data");
-    }
-
-    const emojis: EmojiEntry[] = svgFiles
-      .filter(
-        (f): f is JsDelivrFile =>
-          !("files" in f) && f.name.endsWith(".svg")
-      )
-      .map((f) => {
-        const code = f.name.replace(".svg", "");
-        return {
-          code,
-          url: `${TWEMOJI_BASE_URL}/${f.name}`,
-        };
-      })
-      .sort((a, b) => a.code.localeCompare(b.code));
-
+    emojis.sort((a, b) => a.order - b.order);
     cachedEmojis = emojis;
     return NextResponse.json(emojis);
   } catch (error) {
-    console.error("Failed to fetch emoji list:", error);
+    console.error("Failed to load emoji data:", error);
     return NextResponse.json(
-      { error: "Failed to fetch emoji list" },
+      { error: "Failed to load emoji data" },
       { status: 500 }
     );
   }

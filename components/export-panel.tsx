@@ -5,11 +5,30 @@ import * as THREE from "three";
 import { useAppStore } from "@/lib/store";
 import { exportModel } from "@/lib/three/exporters";
 import { EXPORT_FORMATS } from "@/lib/constants";
-import type { ExportFormat } from "@/lib/types";
+import type { ExportFormat, FileNaming } from "@/lib/types";
+
+const FILE_NAMING_OPTIONS: { id: FileNaming; label: string; example: string }[] = [
+  { id: "unicode", label: "Unicode", example: "1f602" },
+  { id: "shortname", label: "Shortname", example: "joy" },
+];
+
+function getExportFilename(
+  emoji: { code: string; shortname: string },
+  naming: FileNaming
+): string {
+  return naming === "shortname" ? emoji.shortname : emoji.code;
+}
 
 export default function ExportPanel() {
-  const { selectedEmoji, exportFormat, setExportFormat, isExporting, setIsExporting } =
-    useAppStore();
+  const {
+    selectedEmoji,
+    exportFormat,
+    setExportFormat,
+    fileNaming,
+    setFileNaming,
+    isExporting,
+    setIsExporting,
+  } = useAppStore();
   const [error, setError] = useState<string | null>(null);
 
   const handleExport = async () => {
@@ -27,7 +46,8 @@ export default function ExportPanel() {
     setError(null);
 
     try {
-      await exportModel(modelRef.current, exportFormat, selectedEmoji.code);
+      const filename = getExportFilename(selectedEmoji, fileNaming);
+      await exportModel(modelRef.current, exportFormat, filename);
     } catch (err) {
       console.error("Export failed:", err);
       setError("Export failed. Please try again.");
@@ -36,27 +56,63 @@ export default function ExportPanel() {
     }
   };
 
+  const previewFilename = selectedEmoji
+    ? `${getExportFilename(selectedEmoji, fileNaming)}.${exportFormat}`
+    : "";
+
   return (
     <div className="flex flex-col gap-3">
       <label className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
         Export
       </label>
 
-      <div className="grid grid-cols-2 gap-1.5">
-        {EXPORT_FORMATS.map((fmt) => (
-          <button
-            key={fmt.id}
-            onClick={() => setExportFormat(fmt.id)}
-            className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
-              exportFormat === fmt.id
-                ? "bg-blue-600 text-white"
-                : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-white"
-            }`}
-            title={fmt.description}
-          >
-            .{fmt.name}
-          </button>
-        ))}
+      <div>
+        <span className="mb-1.5 block text-[10px] font-medium text-zinc-500">
+          Format
+        </span>
+        <div className="grid grid-cols-2 gap-1.5">
+          {EXPORT_FORMATS.map((fmt) => (
+            <button
+              key={fmt.id}
+              onClick={() => setExportFormat(fmt.id)}
+              className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
+                exportFormat === fmt.id
+                  ? "bg-blue-600 text-white"
+                  : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-white"
+              }`}
+              title={fmt.description}
+            >
+              .{fmt.name}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <span className="mb-1.5 block text-[10px] font-medium text-zinc-500">
+          File Naming
+        </span>
+        <div className="grid grid-cols-2 gap-1.5">
+          {FILE_NAMING_OPTIONS.map((opt) => (
+            <button
+              key={opt.id}
+              onClick={() => setFileNaming(opt.id)}
+              className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
+                fileNaming === opt.id
+                  ? "bg-blue-600 text-white"
+                  : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-white"
+              }`}
+              title={`e.g. ${opt.example}.${exportFormat}`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+        {selectedEmoji && (
+          <span className="mt-1 block text-[10px] text-zinc-600">
+            Preview: {previewFilename}
+          </span>
+        )}
       </div>
 
       <button
@@ -86,7 +142,7 @@ export default function ExportPanel() {
               <polyline points="7 10 12 15 17 10" />
               <line x1="12" y1="15" x2="12" y2="3" />
             </svg>
-            Download {selectedEmoji ? `${selectedEmoji.code}.${exportFormat}` : ""}
+            Download {previewFilename}
           </>
         )}
       </button>
