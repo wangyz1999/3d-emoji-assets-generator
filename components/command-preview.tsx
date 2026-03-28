@@ -100,7 +100,7 @@ export default function CommandPreview() {
       <div className="grid grid-cols-2 gap-1.5">
         <div className="flex flex-col gap-1 rounded-lg border border-zinc-700 bg-zinc-900 p-2.5">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] text-zinc-500">Current</span>
+            <span className="text-[10px] text-zinc-500">Current Emoji</span>
             <button
               onClick={() => handleCopy(command, "current")}
               className="text-[10px] text-blue-400 hover:text-blue-300"
@@ -115,7 +115,7 @@ export default function CommandPreview() {
 
         <div className="flex flex-col gap-1 rounded-lg border border-zinc-700 bg-zinc-900 p-2.5">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] text-zinc-500">Batch</span>
+            <span className="text-[10px] text-zinc-500">Batch Generate</span>
             <button
               onClick={() => handleCopy(batchCommand, "batch")}
               className="text-[10px] text-blue-400 hover:text-blue-300"

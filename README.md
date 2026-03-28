@@ -8,6 +8,12 @@
 
 Generate customizable 3D emoji assets from [Twemoji](https://github.com/jdecked/twemoji) SVGs. Choose from multiple shape presets (coins, speech bubbles), tweak every parameter, preview in real-time, and export as GLB, OBJ, STL, or USDZ — all in your browser. Includes a CLI for batch generation.
 
+## Download Pre-generated Assets
+
+Pre-generated 4,009 emoji GLB asset packs are available for download in both **bubble** and **coin** shapes (~250 MB).
+
+**[Download Pre-generated Assets on Google Drive](https://drive.google.com/drive/folders/1zSVN45hfUKDhuf6YsjPyC4E12omm_R5b?usp=drive_link)**
+
 ### Installation
 
 ```bash
@@ -63,17 +69,10 @@ Use `--concurrency` to render multiple emojis in parallel (default: `4`):
 npm run generate -- --shape bubble --emojis all --format glb --output ./output/bubble/ --concurrency 8
 ```
 
-### Avoid CDN rate-limits with local SVGs
-
-High concurrency can trigger jsDelivr rate-limits and cause timeout errors. The recommended workflow for large batch jobs is to download all SVGs first and generate offline:
+### Use Local Emoji
 
 ```bash
-# Step 1 — download ~4 000 SVGs to data/svg/ (one-time, re-run safe)
-python scripts/download_svgs.py
-
-# Step 2 — generate using local files, no CDN dependency
-npm run generate -- --shape bubble --emojis all --format glb --output ./output/ \
-  --emoji-source local --concurrency 8
+npm run generate -- --shape bubble --emojis all --format glb --output ./output/ --emoji-source local
 ```
 
 For all available flags and per-shape style parameters, see the **[CLI Reference](docs/cli-reference.md)**.
@@ -82,16 +81,17 @@ For all available flags and per-shape style parameters, see the **[CLI Reference
 
 ## Export Formats
 
-| Format | Extension | Best For |
-|--------|-----------|----------|
-| **GLB** | `.glb` | Universal 3D (Unity, Unreal, Blender, web) |
-| **OBJ** | `.obj` | Legacy 3D software (geometry only, no materials) |
-| **STL** | `.stl` | 3D printing |
-| **USDZ** | `.usdz` | Apple AR QuickLook on iOS/macOS |
+| Format   | Extension |
+|----------|-----------|
+| **GLB**  | `.glb`    |
+| **OBJ**  | `.obj`    |
+| **STL**  | `.stl`    |
+| **USDZ** | `.usdz`   |
+
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions, feature requests, bug reports, and ideas are all welcome! Feel free to submit a Pull Request or open an issue.
 
 ## License
 
