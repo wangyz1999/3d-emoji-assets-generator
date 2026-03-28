@@ -90,17 +90,41 @@ function buildQueryParams(config: StyleConfig, emoji: string, format: ExportForm
     params.set("rimWidth", String(config.rimWidth));
     params.set("rimColor", config.rimColor);
     params.set("faceColor", config.faceColor);
+    params.set("showRim", String(config.showRim));
     params.set("metalness", String(config.metalness));
     params.set("roughness", String(config.roughness));
     params.set("emojiScale", String(config.emojiScale));
     params.set("doubleSided", String(config.doubleSided));
-  } else {
+  } else if (config.shape === "bubble") {
     params.set("radius", String(config.radius));
     params.set("depth", String(config.depth));
     params.set("tailLength", String(config.tailLength));
     params.set("tailWidth", String(config.tailWidth));
     params.set("color", config.color);
     params.set("bevelSize", String(config.bevelSize));
+    params.set("roughness", String(config.roughness));
+    params.set("emojiScale", String(config.emojiScale));
+    params.set("doubleSided", String(config.doubleSided));
+  } else if (config.shape === "pin") {
+    params.set("pinRadius", String(config.pinRadius));
+    params.set("innerRadius", String(config.innerRadius));
+    params.set("pinPointLength", String(config.pinPointLength));
+    params.set("depth", String(config.depth));
+    params.set("shellColor", config.shellColor);
+    params.set("innerColor", config.innerColor);
+    params.set("metalness", String(config.metalness));
+    params.set("roughness", String(config.roughness));
+    params.set("emojiScale", String(config.emojiScale));
+    params.set("doubleSided", String(config.doubleSided));
+  } else if (config.shape === "badge") {
+    params.set("sides", String(config.sides));
+    params.set("badgeRadius", String(config.badgeRadius));
+    params.set("innerRadius", String(config.innerRadius));
+    params.set("depth", String(config.depth));
+    params.set("frameColor", config.frameColor);
+    params.set("innerColor", config.innerColor);
+    params.set("emissiveIntensity", String(config.emissiveIntensity));
+    params.set("metalness", String(config.metalness));
     params.set("roughness", String(config.roughness));
     params.set("emojiScale", String(config.emojiScale));
     params.set("doubleSided", String(config.doubleSided));

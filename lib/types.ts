@@ -1,4 +1,4 @@
-export type ShapeType = "coin" | "bubble";
+export type ShapeType = "coin" | "bubble" | "pin" | "badge";
 
 export type ExportFormat = "glb" | "obj" | "stl" | "usdz";
 
@@ -9,6 +9,7 @@ export interface CoinStyle {
   rimWidth: number;
   rimColor: string;
   faceColor: string;
+  showRim: boolean;
   doubleSided: boolean;
   metalness: number;
   roughness: number;
@@ -28,7 +29,36 @@ export interface BubbleStyle {
   emojiScale: number;
 }
 
-export type StyleConfig = CoinStyle | BubbleStyle;
+export interface PinStyle {
+  shape: "pin";
+  pinRadius: number;
+  innerRadius: number;
+  pinPointLength: number;
+  depth: number;
+  shellColor: string;
+  innerColor: string;
+  metalness: number;
+  roughness: number;
+  doubleSided: boolean;
+  emojiScale: number;
+}
+
+export interface BadgeStyle {
+  shape: "badge";
+  sides: number;
+  badgeRadius: number;
+  innerRadius: number;
+  depth: number;
+  frameColor: string;
+  innerColor: string;
+  emissiveIntensity: number;
+  metalness: number;
+  roughness: number;
+  doubleSided: boolean;
+  emojiScale: number;
+}
+
+export type StyleConfig = CoinStyle | BubbleStyle | PinStyle | BadgeStyle;
 
 export type FileNaming = "unicode" | "shortname";
 

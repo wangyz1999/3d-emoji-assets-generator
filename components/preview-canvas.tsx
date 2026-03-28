@@ -7,6 +7,8 @@ import * as THREE from "three";
 import { useAppStore } from "@/lib/store";
 import { buildCoin } from "@/lib/three/coin-builder";
 import { buildBubble } from "@/lib/three/bubble-builder";
+import { buildPin } from "@/lib/three/pin-builder";
+import { buildBadge } from "@/lib/three/badge-builder";
 
 function disposeObject(obj: THREE.Object3D) {
   obj.traverse((child) => {
@@ -46,8 +48,12 @@ function SceneContent() {
       let model: THREE.Group;
       if (styleConfig.shape === "coin") {
         model = await buildCoin(styleConfig, selectedEmoji.url);
-      } else {
+      } else if (styleConfig.shape === "bubble") {
         model = await buildBubble(styleConfig, selectedEmoji.url);
+      } else if (styleConfig.shape === "pin") {
+        model = await buildPin(styleConfig, selectedEmoji.url);
+      } else {
+        model = await buildBadge(styleConfig, selectedEmoji.url);
       }
 
       modelRef.current = model;

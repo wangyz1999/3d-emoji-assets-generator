@@ -25,11 +25,8 @@ export default function Home() {
       <aside className="flex w-full flex-col border-b border-zinc-800 lg:w-[480px] lg:border-b-0 lg:border-r">
         <div className="border-b border-zinc-800 px-5 py-4">
           <h1 className="text-lg font-bold tracking-tight">
-            3D Emoji Assets Generator
+            3D Emoji Generator
           </h1>
-          <p className="mt-0.5 text-xs text-zinc-500">
-            Generate 3D emoji models from Twemoji SVGs
-          </p>
         </div>
 
         <div className="flex-1 overflow-y-auto">

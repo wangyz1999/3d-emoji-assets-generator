@@ -19,20 +19,47 @@ export default function CommandPreview() {
     if (styleConfig.shape === "coin") {
       parts.push(`--radius ${styleConfig.radius}`);
       parts.push(`--thickness ${styleConfig.thickness}`);
-      parts.push(`--rim-width ${styleConfig.rimWidth}`);
-      parts.push(`--rim-color "${styleConfig.rimColor}"`);
+      if (styleConfig.showRim) {
+        parts.push(`--rim-width ${styleConfig.rimWidth}`);
+        parts.push(`--rim-color "${styleConfig.rimColor}"`);
+      } else {
+        parts.push("--no-rim");
+      }
       parts.push(`--face-color "${styleConfig.faceColor}"`);
       parts.push(`--metalness ${styleConfig.metalness}`);
       parts.push(`--roughness ${styleConfig.roughness}`);
       parts.push(`--emoji-scale ${styleConfig.emojiScale}`);
       if (!styleConfig.doubleSided) parts.push("--single-sided");
-    } else {
+    } else if (styleConfig.shape === "bubble") {
       parts.push(`--radius ${styleConfig.radius}`);
       parts.push(`--depth ${styleConfig.depth}`);
       parts.push(`--tail-length ${styleConfig.tailLength}`);
       parts.push(`--tail-width ${styleConfig.tailWidth}`);
       parts.push(`--color "${styleConfig.color}"`);
       parts.push(`--bevel-size ${styleConfig.bevelSize}`);
+      parts.push(`--roughness ${styleConfig.roughness}`);
+      parts.push(`--emoji-scale ${styleConfig.emojiScale}`);
+      if (!styleConfig.doubleSided) parts.push("--single-sided");
+    } else if (styleConfig.shape === "pin") {
+      parts.push(`--pin-radius ${styleConfig.pinRadius}`);
+      parts.push(`--inner-radius ${styleConfig.innerRadius}`);
+      parts.push(`--pin-point-length ${styleConfig.pinPointLength}`);
+      parts.push(`--depth ${styleConfig.depth}`);
+      parts.push(`--shell-color "${styleConfig.shellColor}"`);
+      parts.push(`--inner-color "${styleConfig.innerColor}"`);
+      parts.push(`--metalness ${styleConfig.metalness}`);
+      parts.push(`--roughness ${styleConfig.roughness}`);
+      parts.push(`--emoji-scale ${styleConfig.emojiScale}`);
+      if (!styleConfig.doubleSided) parts.push("--single-sided");
+    } else if (styleConfig.shape === "badge") {
+      parts.push(`--sides ${styleConfig.sides}`);
+      parts.push(`--badge-radius ${styleConfig.badgeRadius}`);
+      parts.push(`--inner-radius ${styleConfig.innerRadius}`);
+      parts.push(`--depth ${styleConfig.depth}`);
+      parts.push(`--frame-color "${styleConfig.frameColor}"`);
+      parts.push(`--inner-color "${styleConfig.innerColor}"`);
+      parts.push(`--emissive-intensity ${styleConfig.emissiveIntensity}`);
+      parts.push(`--metalness ${styleConfig.metalness}`);
       parts.push(`--roughness ${styleConfig.roughness}`);
       parts.push(`--emoji-scale ${styleConfig.emojiScale}`);
       if (!styleConfig.doubleSided) parts.push("--single-sided");

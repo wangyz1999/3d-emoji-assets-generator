@@ -2,8 +2,8 @@
 
 import { Command } from "commander";
 import { generate } from "./generate";
-import { DEFAULT_COIN, DEFAULT_BUBBLE } from "../lib/constants";
-import type { CoinStyle, BubbleStyle, ExportFormat, FileNaming } from "../lib/types";
+import { DEFAULT_COIN, DEFAULT_BUBBLE, DEFAULT_PIN, DEFAULT_BADGE } from "../lib/constants";
+import type { CoinStyle, BubbleStyle, PinStyle, BadgeStyle, ExportFormat, FileNaming, StyleConfig } from "../lib/types";
 
 const program = new Command();
 
@@ -15,7 +15,7 @@ program
 program
   .command("generate")
   .description("Generate 3D emoji model(s)")
-  .requiredOption("--shape <type>", "Shape type: coin or bubble", "coin")
+  .requiredOption("--shape <type>", "Shape type: coin, bubble, pin, or badge", "coin")
   .requiredOption("--format <format>", "Export format: glb, obj, stl, usdz", "glb")
   .requiredOption("--output <dir>", "Output directory", "./output")
   .requiredOption("--emojis <codes>", "Comma-separated emoji codes or 'all'", "all")
@@ -27,23 +27,35 @@ program
   .option("--rim-width <n>", "Coin rim width (0-1)", String(DEFAULT_COIN.rimWidth))
   .option("--rim-color <hex>", "Coin rim color", DEFAULT_COIN.rimColor)
   .option("--face-color <hex>", "Coin face color", DEFAULT_COIN.faceColor)
+  .option("--no-rim", "Disable coin rim")
   .option("--metalness <n>", "Material metalness (0-1)", String(DEFAULT_COIN.metalness))
   .option("--roughness <n>", "Material roughness (0-1)", String(DEFAULT_COIN.roughness))
   .option("--emoji-scale <n>", "Emoji scale factor", String(DEFAULT_COIN.emojiScale))
   .option("--single-sided", "Only put emoji on front face")
   // Bubble options
-  .option("--depth <n>", "Bubble depth", String(DEFAULT_BUBBLE.depth))
+  .option("--depth <n>", "Depth (bubble/pin/badge)", String(DEFAULT_BUBBLE.depth))
   .option("--tail-length <n>", "Bubble tail length", String(DEFAULT_BUBBLE.tailLength))
   .option("--tail-width <n>", "Bubble tail width", String(DEFAULT_BUBBLE.tailWidth))
   .option("--color <hex>", "Bubble color", DEFAULT_BUBBLE.color)
   .option("--bevel-size <n>", "Bubble bevel size", String(DEFAULT_BUBBLE.bevelSize))
+  // Pin options
+  .option("--pin-radius <n>", "Pin outer radius", String(DEFAULT_PIN.pinRadius))
+  .option("--inner-radius <n>", "Pin/badge inner radius", String(DEFAULT_PIN.innerRadius))
+  .option("--pin-point-length <n>", "Pin pointer length", String(DEFAULT_PIN.pinPointLength))
+  .option("--shell-color <hex>", "Pin shell color", DEFAULT_PIN.shellColor)
+  .option("--inner-color <hex>", "Pin/badge inner color", DEFAULT_PIN.innerColor)
+  // Badge options
+  .option("--sides <n>", "Badge polygon sides (3-10)", String(DEFAULT_BADGE.sides))
+  .option("--badge-radius <n>", "Badge outer radius", String(DEFAULT_BADGE.badgeRadius))
+  .option("--frame-color <hex>", "Badge frame color", DEFAULT_BADGE.frameColor)
+  .option("--emissive-intensity <n>", "Badge glow intensity", String(DEFAULT_BADGE.emissiveIntensity))
   .action(async (opts) => {
-    const shape = opts.shape as "coin" | "bubble";
+    const shape = opts.shape as StyleConfig["shape"];
     const format = opts.format as ExportFormat;
     const naming = opts.naming as FileNaming;
     const emojis = opts.emojis.split(",").map((s: string) => s.trim());
 
-    let config: CoinStyle | BubbleStyle;
+    let config: StyleConfig;
 
     if (shape === "coin") {
       config = {
@@ -53,12 +65,13 @@ program
         rimWidth: parseFloat(opts.rimWidth),
         rimColor: opts.rimColor,
         faceColor: opts.faceColor,
+        showRim: opts.rim !== false,
         metalness: parseFloat(opts.metalness),
         roughness: parseFloat(opts.roughness),
         emojiScale: parseFloat(opts.emojiScale),
         doubleSided: !opts.singleSided,
       };
-    } else {
+    } else if (shape === "bubble") {
       config = {
         shape: "bubble",
         radius: parseFloat(opts.radius),
@@ -67,6 +80,35 @@ program
         tailWidth: parseFloat(opts.tailWidth),
         color: opts.color,
         bevelSize: parseFloat(opts.bevelSize),
+        roughness: parseFloat(opts.roughness),
+        emojiScale: parseFloat(opts.emojiScale),
+        doubleSided: !opts.singleSided,
+      };
+    } else if (shape === "pin") {
+      config = {
+        shape: "pin",
+        pinRadius: parseFloat(opts.pinRadius),
+        innerRadius: parseFloat(opts.innerRadius),
+        pinPointLength: parseFloat(opts.pinPointLength),
+        depth: parseFloat(opts.depth || String(DEFAULT_PIN.depth)),
+        shellColor: opts.shellColor,
+        innerColor: opts.innerColor,
+        metalness: parseFloat(opts.metalness),
+        roughness: parseFloat(opts.roughness),
+        emojiScale: parseFloat(opts.emojiScale),
+        doubleSided: !opts.singleSided,
+      };
+    } else {
+      config = {
+        shape: "badge",
+        sides: parseInt(opts.sides),
+        badgeRadius: parseFloat(opts.badgeRadius),
+        innerRadius: parseFloat(opts.innerRadius),
+        depth: parseFloat(opts.depth || String(DEFAULT_BADGE.depth)),
+        frameColor: opts.frameColor,
+        innerColor: opts.innerColor,
+        emissiveIntensity: parseFloat(opts.emissiveIntensity),
+        metalness: parseFloat(opts.metalness),
         roughness: parseFloat(opts.roughness),
         emojiScale: parseFloat(opts.emojiScale),
         doubleSided: !opts.singleSided,

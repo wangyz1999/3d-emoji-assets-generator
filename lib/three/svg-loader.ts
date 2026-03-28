@@ -1,6 +1,9 @@
 import * as THREE from "three";
 import { SVGLoader } from "three/addons/loaders/SVGLoader.js";
 
+const LAYER_OFFSET = 0.003;
+const EMOJI_DEPTH = 0.05;
+
 export async function loadEmojiSVG(
   url: string,
   targetSize: number
@@ -15,7 +18,7 @@ export async function loadEmojiSVG(
         const emojiGroup = new THREE.Group();
 
         const extrudeSettings: THREE.ExtrudeGeometryOptions = {
-          depth: 0.02,
+          depth: EMOJI_DEPTH,
           bevelEnabled: false,
         };
 
@@ -35,7 +38,7 @@ export async function loadEmojiSVG(
           for (const shape of shapes) {
             const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
             const mesh = new THREE.Mesh(geometry, pathMaterial);
-            mesh.position.z = globalShapeIndex * 0.002;
+            mesh.position.z = globalShapeIndex * LAYER_OFFSET;
             globalShapeIndex++;
             mesh.castShadow = true;
             mesh.receiveShadow = true;
@@ -47,15 +50,18 @@ export async function loadEmojiSVG(
         const size = box.getSize(new THREE.Vector3());
         const center = box.getCenter(new THREE.Vector3());
 
+        // Only center X and Y -- keep Z offsets intact so all layers
+        // stack upward from z=0. This prevents the bottom layers from
+        // dipping below the mounting surface and causing z-fighting.
         emojiGroup.children.forEach((child) => {
           const mesh = child as THREE.Mesh;
           mesh.position.x -= center.x;
           mesh.position.y -= center.y;
-          mesh.position.z -= center.z;
         });
 
         const maxDim = Math.max(size.x, size.y);
         const scale = targetSize / maxDim;
+        // Lock Z-scale to 1 so micro-offsets stay at full precision
         emojiGroup.scale.set(scale, -scale, 1);
 
         resolve(emojiGroup);

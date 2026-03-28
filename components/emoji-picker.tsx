@@ -93,10 +93,6 @@ export default function EmojiPicker() {
 
   return (
     <div className="flex flex-col gap-2">
-      <label className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
-        Emoji
-      </label>
-
       {selectedEmoji && (
         <div className="flex items-center gap-3 rounded-lg border border-zinc-700 bg-zinc-800/50 px-3 py-2">
           <span className="text-3xl leading-none">{selectedChar}</span>
@@ -139,12 +135,6 @@ export default function EmojiPicker() {
           </option>
         ))}
       </select>
-
-      <div className="text-[10px] text-zinc-600">
-        {filteredGroups.length.toLocaleString()} emojis
-        {search && ` matching "${search}"`}
-        {selectedCategory && ` in ${selectedCategory}`}
-      </div>
 
       <div
         ref={scrollRef}

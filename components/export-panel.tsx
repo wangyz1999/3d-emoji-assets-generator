@@ -62,15 +62,8 @@ export default function ExportPanel() {
 
   return (
     <div className="flex flex-col gap-3">
-      <label className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
-        Export
-      </label>
-
       <div>
-        <span className="mb-1.5 block text-[10px] font-medium text-zinc-500">
-          Format
-        </span>
-        <div className="grid grid-cols-2 gap-1.5">
+        <div className="grid grid-cols-4 gap-1.5">
           {EXPORT_FORMATS.map((fmt) => (
             <button
               key={fmt.id}
@@ -89,9 +82,6 @@ export default function ExportPanel() {
       </div>
 
       <div>
-        <span className="mb-1.5 block text-[10px] font-medium text-zinc-500">
-          File Naming
-        </span>
         <div className="grid grid-cols-2 gap-1.5">
           {FILE_NAMING_OPTIONS.map((opt) => (
             <button
@@ -108,11 +98,6 @@ export default function ExportPanel() {
             </button>
           ))}
         </div>
-        {selectedEmoji && (
-          <span className="mt-1 block text-[10px] text-zinc-600">
-            Preview: {previewFilename}
-          </span>
-        )}
       </div>
 
       <button

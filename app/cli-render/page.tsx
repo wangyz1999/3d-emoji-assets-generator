@@ -5,15 +5,17 @@ import { useSearchParams } from "next/navigation";
 import * as THREE from "three";
 import { buildCoin } from "@/lib/three/coin-builder";
 import { buildBubble } from "@/lib/three/bubble-builder";
-import type { CoinStyle, BubbleStyle, ExportFormat } from "@/lib/types";
-import { DEFAULT_COIN, DEFAULT_BUBBLE } from "@/lib/constants";
+import { buildPin } from "@/lib/three/pin-builder";
+import { buildBadge } from "@/lib/three/badge-builder";
+import type { CoinStyle, BubbleStyle, PinStyle, BadgeStyle, ExportFormat } from "@/lib/types";
+import { DEFAULT_COIN, DEFAULT_BUBBLE, DEFAULT_PIN, DEFAULT_BADGE } from "@/lib/constants";
 import { GLTFExporter } from "three/addons/exporters/GLTFExporter.js";
 import { OBJExporter } from "three/addons/exporters/OBJExporter.js";
 import { STLExporter } from "three/addons/exporters/STLExporter.js";
 import { USDZExporter } from "three/addons/exporters/USDZExporter.js";
 
 function parseConfig(params: URLSearchParams): {
-  config: CoinStyle | BubbleStyle;
+  config: CoinStyle | BubbleStyle | PinStyle | BadgeStyle;
   emoji: string;
   format: ExportFormat;
 } {
@@ -37,6 +39,41 @@ function parseConfig(params: URLSearchParams): {
     return { config, emoji, format };
   }
 
+  if (shape === "pin") {
+    const config: PinStyle = {
+      ...DEFAULT_PIN,
+      pinRadius: parseFloat(params.get("pinRadius") ?? String(DEFAULT_PIN.pinRadius)),
+      innerRadius: parseFloat(params.get("innerRadius") ?? String(DEFAULT_PIN.innerRadius)),
+      pinPointLength: parseFloat(params.get("pinPointLength") ?? String(DEFAULT_PIN.pinPointLength)),
+      depth: parseFloat(params.get("depth") ?? String(DEFAULT_PIN.depth)),
+      shellColor: params.get("shellColor") ?? DEFAULT_PIN.shellColor,
+      innerColor: params.get("innerColor") ?? DEFAULT_PIN.innerColor,
+      metalness: parseFloat(params.get("metalness") ?? String(DEFAULT_PIN.metalness)),
+      roughness: parseFloat(params.get("roughness") ?? String(DEFAULT_PIN.roughness)),
+      emojiScale: parseFloat(params.get("emojiScale") ?? String(DEFAULT_PIN.emojiScale)),
+      doubleSided: params.get("doubleSided") !== "false",
+    };
+    return { config, emoji, format };
+  }
+
+  if (shape === "badge") {
+    const config: BadgeStyle = {
+      ...DEFAULT_BADGE,
+      sides: parseInt(params.get("sides") ?? String(DEFAULT_BADGE.sides)),
+      badgeRadius: parseFloat(params.get("badgeRadius") ?? String(DEFAULT_BADGE.badgeRadius)),
+      innerRadius: parseFloat(params.get("innerRadius") ?? String(DEFAULT_BADGE.innerRadius)),
+      depth: parseFloat(params.get("depth") ?? String(DEFAULT_BADGE.depth)),
+      frameColor: params.get("frameColor") ?? DEFAULT_BADGE.frameColor,
+      innerColor: params.get("innerColor") ?? DEFAULT_BADGE.innerColor,
+      emissiveIntensity: parseFloat(params.get("emissiveIntensity") ?? String(DEFAULT_BADGE.emissiveIntensity)),
+      metalness: parseFloat(params.get("metalness") ?? String(DEFAULT_BADGE.metalness)),
+      roughness: parseFloat(params.get("roughness") ?? String(DEFAULT_BADGE.roughness)),
+      emojiScale: parseFloat(params.get("emojiScale") ?? String(DEFAULT_BADGE.emojiScale)),
+      doubleSided: params.get("doubleSided") !== "false",
+    };
+    return { config, emoji, format };
+  }
+
   const config: CoinStyle = {
     ...DEFAULT_COIN,
     radius: parseFloat(params.get("radius") ?? String(DEFAULT_COIN.radius)),
@@ -44,6 +81,7 @@ function parseConfig(params: URLSearchParams): {
     rimWidth: parseFloat(params.get("rimWidth") ?? String(DEFAULT_COIN.rimWidth)),
     rimColor: params.get("rimColor") ?? DEFAULT_COIN.rimColor,
     faceColor: params.get("faceColor") ?? DEFAULT_COIN.faceColor,
+    showRim: params.get("showRim") !== "false",
     metalness: parseFloat(params.get("metalness") ?? String(DEFAULT_COIN.metalness)),
     roughness: parseFloat(params.get("roughness") ?? String(DEFAULT_COIN.roughness)),
     emojiScale: parseFloat(params.get("emojiScale") ?? String(DEFAULT_COIN.emojiScale)),
@@ -105,8 +143,12 @@ function CLIRenderContent() {
       let model: THREE.Group;
       if (config.shape === "coin") {
         model = await buildCoin(config as CoinStyle, svgUrl);
-      } else {
+      } else if (config.shape === "bubble") {
         model = await buildBubble(config as BubbleStyle, svgUrl);
+      } else if (config.shape === "pin") {
+        model = await buildPin(config as PinStyle, svgUrl);
+      } else {
+        model = await buildBadge(config as BadgeStyle, svgUrl);
       }
 
       const { buffer, ext } = await exportToBuffer(model, format);

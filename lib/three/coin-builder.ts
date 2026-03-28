@@ -35,19 +35,21 @@ export function buildCoinBase(config: CoinStyle): THREE.Group {
   coinBody.receiveShadow = true;
   group.add(coinBody);
 
-  const innerRadius = config.radius * (1 - config.rimWidth);
-  const ringGeometry = new THREE.RingGeometry(innerRadius, config.radius, 64);
+  if (config.showRim !== false) {
+    const innerRadius = config.radius * (1 - config.rimWidth);
+    const ringGeometry = new THREE.RingGeometry(innerRadius, config.radius, 64);
 
-  const frontRing = new THREE.Mesh(ringGeometry, rimMaterial);
-  frontRing.position.z = config.thickness / 2 + 0.005;
-  frontRing.receiveShadow = true;
-  group.add(frontRing);
+    const frontRing = new THREE.Mesh(ringGeometry, rimMaterial);
+    frontRing.position.z = config.thickness / 2 + 0.005;
+    frontRing.receiveShadow = true;
+    group.add(frontRing);
 
-  const backRing = new THREE.Mesh(ringGeometry, rimMaterial);
-  backRing.position.z = -(config.thickness / 2) - 0.005;
-  backRing.rotation.y = Math.PI;
-  backRing.receiveShadow = true;
-  group.add(backRing);
+    const backRing = new THREE.Mesh(ringGeometry, rimMaterial);
+    backRing.position.z = -(config.thickness / 2) - 0.005;
+    backRing.rotation.y = Math.PI;
+    backRing.receiveShadow = true;
+    group.add(backRing);
+  }
 
   return group;
 }

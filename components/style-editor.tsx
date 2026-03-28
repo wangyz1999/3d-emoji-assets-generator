@@ -1,8 +1,8 @@
 "use client";
 
 import { useAppStore } from "@/lib/store";
-import { DEFAULT_COIN, DEFAULT_BUBBLE } from "@/lib/constants";
-import type { StyleConfig, CoinStyle, BubbleStyle } from "@/lib/types";
+import { DEFAULT_COIN, DEFAULT_BUBBLE, DEFAULT_PIN, DEFAULT_BADGE } from "@/lib/constants";
+import type { StyleConfig, CoinStyle, BubbleStyle, PinStyle, BadgeStyle } from "@/lib/types";
 
 function Slider({
   label,
@@ -93,45 +93,38 @@ function Toggle({
   );
 }
 
+const SHAPE_OPTIONS = [
+  { id: "coin", label: "Coin", defaults: DEFAULT_COIN },
+  { id: "bubble", label: "Bubble", defaults: DEFAULT_BUBBLE },
+  { id: "pin", label: "Pin", defaults: DEFAULT_PIN },
+  { id: "badge", label: "Badge", defaults: DEFAULT_BADGE },
+] as const;
+
 function ShapeToggle() {
   const { styleConfig, setStyleConfig } = useAppStore();
-  const isCoin = styleConfig.shape === "coin";
 
-  const switchTo = (shape: "coin" | "bubble") => {
+  const switchTo = (shape: string) => {
     if (shape === styleConfig.shape) return;
-    if (shape === "coin") {
-      setStyleConfig({ ...DEFAULT_COIN });
-    } else {
-      setStyleConfig({ ...DEFAULT_BUBBLE });
-    }
+    const option = SHAPE_OPTIONS.find((o) => o.id === shape);
+    if (option) setStyleConfig({ ...option.defaults });
   };
 
   return (
     <div className="flex flex-col gap-2">
-      <label className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
-        Shape
-      </label>
       <div className="flex gap-1 rounded-lg bg-zinc-800 p-1">
-        <button
-          onClick={() => switchTo("coin")}
-          className={`flex-1 rounded-md py-1.5 text-xs font-medium transition-colors ${
-            isCoin
-              ? "bg-blue-600 text-white"
-              : "text-zinc-400 hover:text-white"
-          }`}
-        >
-          Coin
-        </button>
-        <button
-          onClick={() => switchTo("bubble")}
-          className={`flex-1 rounded-md py-1.5 text-xs font-medium transition-colors ${
-            !isCoin
-              ? "bg-blue-600 text-white"
-              : "text-zinc-400 hover:text-white"
-          }`}
-        >
-          Bubble
-        </button>
+        {SHAPE_OPTIONS.map((opt) => (
+          <button
+            key={opt.id}
+            onClick={() => switchTo(opt.id)}
+            className={`flex-1 rounded-md py-1.5 text-xs font-medium transition-colors ${
+              styleConfig.shape === opt.id
+                ? "bg-blue-600 text-white"
+                : "text-zinc-400 hover:text-white"
+            }`}
+          >
+            {opt.label}
+          </button>
+        ))}
       </div>
     </div>
   );
@@ -160,19 +153,28 @@ function CoinControls({ config }: { config: CoinStyle }) {
         step={0.05}
         onChange={(v) => update({ thickness: v })}
       />
-      <Slider
-        label="Rim Width"
-        value={config.rimWidth}
-        min={0}
-        max={0.3}
-        step={0.01}
-        onChange={(v) => update({ rimWidth: v })}
+      <Toggle
+        label="Show Rim"
+        checked={config.showRim}
+        onChange={(v) => update({ showRim: v })}
       />
-      <ColorInput
-        label="Rim Color"
-        value={config.rimColor}
-        onChange={(v) => update({ rimColor: v })}
-      />
+      {config.showRim && (
+        <>
+          <Slider
+            label="Rim Width"
+            value={config.rimWidth}
+            min={0}
+            max={0.3}
+            step={0.01}
+            onChange={(v) => update({ rimWidth: v })}
+          />
+          <ColorInput
+            label="Rim Color"
+            value={config.rimColor}
+            onChange={(v) => update({ rimColor: v })}
+          />
+        </>
+      )}
       <ColorInput
         label="Face Color"
         value={config.faceColor}
@@ -288,21 +290,199 @@ function BubbleControls({ config }: { config: BubbleStyle }) {
   );
 }
 
-export default function StyleEditor() {
+function PinControls({ config }: { config: PinStyle }) {
+  const { updateStyleConfig } = useAppStore();
+  const update = (partial: Partial<PinStyle>) =>
+    updateStyleConfig(partial as Partial<StyleConfig>);
+
+  return (
+    <div className="flex flex-col gap-3">
+      <Slider
+        label="Pin Radius"
+        value={config.pinRadius}
+        min={1}
+        max={5}
+        step={0.1}
+        onChange={(v) => update({ pinRadius: v })}
+      />
+      <Slider
+        label="Inner Radius"
+        value={config.innerRadius}
+        min={0.5}
+        max={4}
+        step={0.1}
+        onChange={(v) => update({ innerRadius: v })}
+      />
+      <Slider
+        label="Point Length"
+        value={config.pinPointLength}
+        min={2}
+        max={8}
+        step={0.1}
+        onChange={(v) => update({ pinPointLength: v })}
+      />
+      <Slider
+        label="Depth"
+        value={config.depth}
+        min={0.1}
+        max={1}
+        step={0.05}
+        onChange={(v) => update({ depth: v })}
+      />
+      <ColorInput
+        label="Shell Color"
+        value={config.shellColor}
+        onChange={(v) => update({ shellColor: v })}
+      />
+      <ColorInput
+        label="Inner Color"
+        value={config.innerColor}
+        onChange={(v) => update({ innerColor: v })}
+      />
+      <Slider
+        label="Metalness"
+        value={config.metalness}
+        min={0}
+        max={1}
+        step={0.05}
+        onChange={(v) => update({ metalness: v })}
+      />
+      <Slider
+        label="Roughness"
+        value={config.roughness}
+        min={0}
+        max={1}
+        step={0.05}
+        onChange={(v) => update({ roughness: v })}
+      />
+      <Slider
+        label="Emoji Scale"
+        value={config.emojiScale}
+        min={0.5}
+        max={2}
+        step={0.05}
+        onChange={(v) => update({ emojiScale: v })}
+      />
+      <Toggle
+        label="Double Sided"
+        checked={config.doubleSided}
+        onChange={(v) => update({ doubleSided: v })}
+      />
+    </div>
+  );
+}
+
+function BadgeControls({ config }: { config: BadgeStyle }) {
+  const { updateStyleConfig } = useAppStore();
+  const update = (partial: Partial<BadgeStyle>) =>
+    updateStyleConfig(partial as Partial<StyleConfig>);
+
+  return (
+    <div className="flex flex-col gap-3">
+      <Slider
+        label="Polygon Sides"
+        value={config.sides}
+        min={3}
+        max={10}
+        step={1}
+        onChange={(v) => update({ sides: v })}
+      />
+      <Slider
+        label="Badge Radius"
+        value={config.badgeRadius}
+        min={1}
+        max={5}
+        step={0.1}
+        onChange={(v) => update({ badgeRadius: v })}
+      />
+      <Slider
+        label="Inner Radius"
+        value={config.innerRadius}
+        min={0.5}
+        max={4}
+        step={0.1}
+        onChange={(v) => update({ innerRadius: v })}
+      />
+      <Slider
+        label="Depth"
+        value={config.depth}
+        min={0.1}
+        max={1}
+        step={0.05}
+        onChange={(v) => update({ depth: v })}
+      />
+      <ColorInput
+        label="Frame Color"
+        value={config.frameColor}
+        onChange={(v) => update({ frameColor: v })}
+      />
+      <ColorInput
+        label="Inner Color"
+        value={config.innerColor}
+        onChange={(v) => update({ innerColor: v })}
+      />
+      <Slider
+        label="Glow Intensity"
+        value={config.emissiveIntensity}
+        min={0}
+        max={1}
+        step={0.05}
+        onChange={(v) => update({ emissiveIntensity: v })}
+      />
+      <Slider
+        label="Metalness"
+        value={config.metalness}
+        min={0}
+        max={1}
+        step={0.05}
+        onChange={(v) => update({ metalness: v })}
+      />
+      <Slider
+        label="Roughness"
+        value={config.roughness}
+        min={0}
+        max={1}
+        step={0.05}
+        onChange={(v) => update({ roughness: v })}
+      />
+      <Slider
+        label="Emoji Scale"
+        value={config.emojiScale}
+        min={0.5}
+        max={2}
+        step={0.05}
+        onChange={(v) => update({ emojiScale: v })}
+      />
+      <Toggle
+        label="Double Sided"
+        checked={config.doubleSided}
+        onChange={(v) => update({ doubleSided: v })}
+      />
+    </div>
+  );
+}
+
+function ShapeControls() {
   const { styleConfig } = useAppStore();
 
+  switch (styleConfig.shape) {
+    case "coin":
+      return <CoinControls config={styleConfig} />;
+    case "bubble":
+      return <BubbleControls config={styleConfig} />;
+    case "pin":
+      return <PinControls config={styleConfig} />;
+    case "badge":
+      return <BadgeControls config={styleConfig} />;
+  }
+}
+
+export default function StyleEditor() {
   return (
     <div className="flex flex-col gap-4">
       <ShapeToggle />
       <div className="border-t border-zinc-700/50 pt-3">
-        <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-zinc-400">
-          Settings
-        </label>
-        {styleConfig.shape === "coin" ? (
-          <CoinControls config={styleConfig} />
-        ) : (
-          <BubbleControls config={styleConfig} />
-        )}
+        <ShapeControls />
       </div>
     </div>
   );
