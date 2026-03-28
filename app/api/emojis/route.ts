@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { TWEMOJI_BASE_URL } from "@/lib/constants";
 import type { EmojiEntry } from "@/lib/types";
 import emojisData from "@/data/emojis.json";
+import availableIds from "@/data/ids.json";
 
 interface RawEmoji {
   emoji: string;
@@ -29,6 +30,7 @@ export async function GET() {
 
   try {
     const raw = emojisData.emojis as RawEmoji[];
+    const availableSet = new Set<string>(availableIds as string[]);
 
     const seen = new Set<string>();
     const emojis: EmojiEntry[] = [];
@@ -38,6 +40,7 @@ export async function GET() {
       if (!e.unicode || !e.name) continue;
       const code = unicodeToTwemojiCode(e.unicode);
       if (seen.has(code)) continue;
+      if (!availableSet.has(code)) continue;
       seen.add(code);
       const numOrder = e.order ? parseInt(e.order, 10) : NaN;
       emojis.push({

@@ -94,8 +94,8 @@ export default function CommandPreview() {
         CLI Command
       </span>
 
-      <div className="flex flex-col gap-1.5 rounded-lg border border-zinc-700 bg-zinc-900 p-2.5">
-        <div className="flex flex-col gap-1">
+      <div className="grid grid-cols-2 gap-1.5">
+        <div className="flex flex-col gap-1 rounded-lg border border-zinc-700 bg-zinc-900 p-2.5">
           <div className="flex items-center justify-between">
             <span className="text-[10px] text-zinc-500">Current</span>
             <button
@@ -110,9 +110,7 @@ export default function CommandPreview() {
           </pre>
         </div>
 
-        <div className="border-t border-zinc-700/50" />
-
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-1 rounded-lg border border-zinc-700 bg-zinc-900 p-2.5">
           <div className="flex items-center justify-between">
             <span className="text-[10px] text-zinc-500">Batch</span>
             <button

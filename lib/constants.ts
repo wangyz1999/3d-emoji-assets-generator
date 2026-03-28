@@ -49,7 +49,7 @@ export const DEFAULT_PIN: PinStyle = {
 
 export const DEFAULT_BADGE: BadgeStyle = {
   shape: "badge",
-  sides: 6,
+  sides: 8,
   badgeRadius: 2.5,
   innerRadius: 2.0,
   depth: 0.4,
