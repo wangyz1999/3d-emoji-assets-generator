@@ -1,4 +1,10 @@
-# 3D Emoji Assets Generator
+# 3D Emoji Generator
+
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-emoji3d.org-blue?style=flat-square&logo=vercel)](https://emoji3d.org)
+[![Deploy](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=flat-square&logo=vercel)](https://vercel.com)
+[![License: MIT](https://img.shields.io/badge/Code-MIT-green?style=flat-square)](LICENSE)
+[![License: CC BY 4.0](https://img.shields.io/badge/Graphics-CC%20BY%204.0-lightgrey?style=flat-square)](LICENSE-GRAPHICS)
+[![Twemoji](https://img.shields.io/badge/Emoji-Twemoji-blue?style=flat-square)](https://github.com/jdecked/twemoji)
 
 Generate customizable 3D emoji assets from [Twemoji](https://github.com/jdecked/twemoji) SVGs. Choose from multiple shape presets (coins, speech bubbles), tweak every parameter, preview in real-time, and export as GLB, OBJ, STL, or USDZ — all in your browser. Includes a CLI for batch generation.
 
@@ -24,7 +30,7 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) to use the web editor.
+Open [http://localhost:3000](http://localhost:3000) to use the web editor, or visit the live app at **[emoji3d.org](https://emoji3d.org)**.
 
 
 ## CLI Usage
@@ -82,8 +88,4 @@ Code licensed under the MIT License: <http://opensource.org/licenses/MIT>
 
 Graphics licensed under CC-BY 4.0: <https://creativecommons.org/licenses/by/4.0/>
 
-> [!NOTE]
-> The emoji graphics used in generated assets are from [Twemoji](https://github.com/jdecked/twemoji) by Twitter/X Corp.
-> If you distribute or publish generated assets, you must include the following attribution:
->
-> **"Emoji graphics by [Twemoji](https://github.com/jdecked/twemoji) © Twitter/X Corp, licensed under [CC-BY 4.0](https://creativecommons.org/licenses/by/4.0/)"**
+The emoji graphics used in generated assets are from [Twemoji](https://github.com/jdecked/twemoji) by Twitter/X Corp. If you distribute or publish generated assets, you must include attribution to Twemoji
