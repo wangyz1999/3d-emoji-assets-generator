@@ -8,7 +8,7 @@ import { buildBubble } from "@/lib/three/bubble-builder";
 import { buildPin } from "@/lib/three/pin-builder";
 import { buildBadge } from "@/lib/three/badge-builder";
 import type { CoinStyle, BubbleStyle, PinStyle, BadgeStyle, ExportFormat } from "@/lib/types";
-import { DEFAULT_COIN, DEFAULT_BUBBLE, DEFAULT_PIN, DEFAULT_BADGE } from "@/lib/constants";
+import { DEFAULT_COIN, DEFAULT_BUBBLE, DEFAULT_PIN, DEFAULT_BADGE, TWEMOJI_BASE_URL, LOCAL_SVG_BASE_URL } from "@/lib/constants";
 import { GLTFExporter } from "three/addons/exporters/GLTFExporter.js";
 import { OBJExporter } from "three/addons/exporters/OBJExporter.js";
 import { STLExporter } from "three/addons/exporters/STLExporter.js";
@@ -133,7 +133,9 @@ function CLIRenderContent() {
 
   const generate = useCallback(async () => {
     const { config, emoji, format } = parseConfig(searchParams);
-    const svgUrl = `https://cdn.jsdelivr.net/gh/jdecked/twemoji@17.0.2/assets/svg/${emoji}.svg`;
+    const emojiSource = searchParams.get("emojiSource") ?? "remote";
+    const svgBase = emojiSource === "local" ? LOCAL_SVG_BASE_URL : TWEMOJI_BASE_URL;
+    const svgUrl = `${svgBase}/${emoji}.svg`;
 
     try {
       if (statusRef.current) {

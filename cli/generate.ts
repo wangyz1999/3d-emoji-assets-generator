@@ -1,6 +1,7 @@
-import puppeteer from "puppeteer";
+import puppeteer, { type Browser } from "puppeteer";
 import { writeFile, mkdir, readFile } from "fs/promises";
 import { resolve, join } from "path";
+import pLimit from "p-limit";
 import type { StyleConfig, ExportFormat, FileNaming } from "../lib/types";
 import { JSDELIVR_API_URL } from "../lib/constants";
 
@@ -12,6 +13,8 @@ interface RawEmoji {
   category: string;
 }
 
+export type EmojiSource = "remote" | "local";
+
 interface GenerateOptions {
   config: StyleConfig;
   emojis: string[];
@@ -19,6 +22,9 @@ interface GenerateOptions {
   naming: FileNaming;
   output: string;
   baseUrl: string;
+  concurrency: number;
+  emojiSource: EmojiSource;
+  retries: number;
 }
 
 function unicodeToTwemojiCode(unicode: string): string {
@@ -61,7 +67,13 @@ function resolveEmojiCode(input: string, byShortname: Map<string, string>): stri
   return resolved;
 }
 
-async function fetchAllEmojiCodes(): Promise<string[]> {
+async function fetchAllEmojiCodes(emojiSource: EmojiSource): Promise<string[]> {
+  // When using local SVGs, read ids.json directly — no network call needed
+  if (emojiSource === "local") {
+    const idsPath = resolve(__dirname, "..", "data", "ids.json");
+    return JSON.parse(await readFile(idsPath, "utf-8")) as string[];
+  }
+
   const res = await fetch(JSDELIVR_API_URL);
   const data = await res.json();
 
@@ -98,11 +110,12 @@ function getOutputFilename(
   return emojiCode;
 }
 
-function buildQueryParams(config: StyleConfig, emoji: string, format: ExportFormat): string {
+function buildQueryParams(config: StyleConfig, emoji: string, format: ExportFormat, emojiSource: EmojiSource): string {
   const params = new URLSearchParams();
   params.set("emoji", emoji);
   params.set("format", format);
   params.set("shape", config.shape);
+  params.set("emojiSource", emojiSource);
 
   if (config.shape === "coin") {
     params.set("radius", String(config.radius));
@@ -153,49 +166,34 @@ function buildQueryParams(config: StyleConfig, emoji: string, format: ExportForm
   return params.toString();
 }
 
-export async function generate(options: GenerateOptions): Promise<void> {
-  const { config, format, naming, output, baseUrl } = options;
-  let { emojis } = options;
+const PAGE_TIMEOUT = 60_000;
 
-  console.log("Loading emoji data...");
-  const { byCode: emojiMap, byShortname } = await loadEmojiMaps();
+async function processEmoji(
+  browser: Browser,
+  emoji: string,
+  config: StyleConfig,
+  format: ExportFormat,
+  naming: FileNaming,
+  outputDir: string,
+  baseUrl: string,
+  emojiMap: Map<string, RawEmoji>,
+  emojiSource: EmojiSource,
+  retries: number
+): Promise<"ok" | "error"> {
+  const query = buildQueryParams(config, emoji, format, emojiSource);
+  const url = `${baseUrl}/cli-render?${query}`;
 
-  if (emojis.length === 1 && emojis[0] === "all") {
-    console.log("Fetching complete emoji list...");
-    emojis = await fetchAllEmojiCodes();
-    console.log(`Found ${emojis.length} emojis`);
-  } else {
-    emojis = emojis.map((e) => resolveEmojiCode(e, byShortname));
-  }
-
-  const outputDir = resolve(output);
-  await mkdir(outputDir, { recursive: true });
-
-  console.log(`Launching headless browser...`);
-  const browser = await puppeteer.launch({
-    headless: true,
-    args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-gpu"],
-  });
-
-  const total = emojis.length;
-  let completed = 0;
-  let errors = 0;
-
-  for (const emoji of emojis) {
+  for (let attempt = 1; attempt <= retries; attempt++) {
     const page = await browser.newPage();
-
     try {
-      const query = buildQueryParams(config, emoji, format);
-      const url = `${baseUrl}/cli-render?${query}`;
+      await page.goto(url, { waitUntil: "networkidle2", timeout: PAGE_TIMEOUT });
 
-      await page.goto(url, { waitUntil: "networkidle2", timeout: 30000 });
-
-      const result = await page.waitForFunction(
+      await page.waitForFunction(
         () => {
           const w = window as any;
           return w.__exportResult?.done || document.querySelector("#status")?.getAttribute("data-error");
         },
-        { timeout: 30000 }
+        { timeout: PAGE_TIMEOUT }
       );
 
       const hasError = await page.evaluate(
@@ -206,9 +204,8 @@ export async function generate(options: GenerateOptions): Promise<void> {
         const errMsg = await page.evaluate(
           () => document.querySelector("#status")?.textContent
         );
-        console.error(`  [FAIL] ${emoji}: ${errMsg}`);
-        errors++;
-        continue;
+        console.error(`\n  [FAIL] ${emoji}: ${errMsg}`);
+        return "error";
       }
 
       const exportData = await page.evaluate(() => {
@@ -229,17 +226,76 @@ export async function generate(options: GenerateOptions): Promise<void> {
         }
 
         await writeFile(filePath, data);
-        completed++;
-        const pct = ((completed / total) * 100).toFixed(1);
-        process.stdout.write(`\r  [${pct}%] ${completed}/${total} generated (${errors} errors)`);
+        return "ok";
       }
+
+      return "error";
     } catch (err) {
-      console.error(`\n  [FAIL] ${emoji}: ${err}`);
-      errors++;
+      const isTimeout = err instanceof Error && err.name === "TimeoutError";
+      if (isTimeout && attempt < retries) {
+        console.error(`\n  [RETRY ${attempt}/${retries}] ${emoji}: timeout`);
+      } else {
+        console.error(`\n  [FAIL] ${emoji}: ${err}`);
+        return "error";
+      }
     } finally {
       await page.close();
     }
   }
+
+  return "error";
+}
+
+export async function generate(options: GenerateOptions): Promise<void> {
+  const { config, format, naming, output, baseUrl, concurrency, emojiSource, retries } = options;
+  let { emojis } = options;
+
+  console.log("Loading emoji data...");
+  const { byCode: emojiMap, byShortname } = await loadEmojiMaps();
+
+  if (emojis.length === 1 && emojis[0] === "all") {
+    if (emojiSource === "local") {
+      console.log("Reading local emoji list...");
+    } else {
+      console.log("Fetching complete emoji list...");
+    }
+    emojis = await fetchAllEmojiCodes(emojiSource);
+    console.log(`Found ${emojis.length} emojis`);
+  } else {
+    emojis = emojis.map((e) => resolveEmojiCode(e, byShortname));
+  }
+
+  const outputDir = resolve(output);
+  await mkdir(outputDir, { recursive: true });
+
+  console.log(`Launching headless browser... (concurrency: ${concurrency})`);
+  const browser = await puppeteer.launch({
+    headless: true,
+    args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-gpu"],
+  });
+
+  const total = emojis.length;
+  let completed = 0;
+  let errors = 0;
+
+  const limit = pLimit(concurrency);
+
+  await Promise.all(
+    emojis.map((emoji) =>
+      limit(async () => {
+        const result = await processEmoji(
+          browser, emoji, config, format, naming, outputDir, baseUrl, emojiMap, emojiSource, retries
+        );
+        if (result === "ok") {
+          completed++;
+        } else {
+          errors++;
+        }
+        const pct = ((completed + errors) / total * 100).toFixed(1);
+        process.stdout.write(`\r  [${pct}%] ${completed}/${total} generated (${errors} errors)`);
+      })
+    )
+  );
 
   await browser.close();
 

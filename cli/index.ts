@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { Command } from "commander";
-import { generate } from "./generate";
+import { generate, type EmojiSource } from "./generate";
 import { DEFAULT_COIN, DEFAULT_BUBBLE, DEFAULT_PIN, DEFAULT_BADGE } from "../lib/constants";
 import type { CoinStyle, BubbleStyle, PinStyle, BadgeStyle, ExportFormat, FileNaming, StyleConfig } from "../lib/types";
 
@@ -21,6 +21,9 @@ program
   .requiredOption("--emojis <codes>", "Comma-separated emoji codes or 'all'", "all")
   .option("--naming <type>", "File naming: unicode or shortname", "unicode")
   .option("--base-url <url>", "Base URL of the running dev server", "http://localhost:3000")
+  .option("--concurrency <n>", "Number of emojis to render in parallel", "4")
+  .option("--retries <n>", "Retry attempts per emoji on timeout", "3")
+  .option("--emoji-source <source>", "SVG source: remote (CDN) or local (data/svg/)", "local")
   // Coin options
   .option("--radius <n>", "Coin/bubble radius", String(DEFAULT_COIN.radius))
   .option("--thickness <n>", "Coin thickness", String(DEFAULT_COIN.thickness))
@@ -54,6 +57,10 @@ program
     const format = opts.format as ExportFormat;
     const naming = opts.naming as FileNaming;
     const emojis = opts.emojis.split(",").map((s: string) => s.trim());
+    const concurrency = Math.max(1, parseInt(opts.concurrency, 10) || 4);
+    const retries = Math.max(1, parseInt(opts.retries, 10) || 3);
+    const emojiSource: EmojiSource =
+      opts.emojiSource === "local" ? "local" : "remote";
 
     let config: StyleConfig;
 
@@ -116,11 +123,14 @@ program
     }
 
     console.log(`\n3D Emoji Generator`);
-    console.log(`  Shape:  ${shape}`);
-    console.log(`  Format: ${format}`);
-    console.log(`  Naming: ${naming}`);
-    console.log(`  Emojis: ${emojis.join(", ")}`);
-    console.log(`  Output: ${opts.output}\n`);
+    console.log(`  Shape:        ${shape}`);
+    console.log(`  Format:       ${format}`);
+    console.log(`  Naming:       ${naming}`);
+    console.log(`  Emojis:       ${emojis.join(", ")}`);
+    console.log(`  Output:       ${opts.output}`);
+    console.log(`  Concurrency:  ${concurrency}`);
+    console.log(`  Retries:      ${retries}`);
+    console.log(`  Emoji source: ${emojiSource}\n`);
 
     await generate({
       config,
@@ -129,6 +139,9 @@ program
       naming,
       output: opts.output,
       baseUrl: opts.baseUrl,
+      concurrency,
+      retries,
+      emojiSource,
     });
   });
 

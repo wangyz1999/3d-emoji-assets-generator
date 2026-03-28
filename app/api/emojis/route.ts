@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { TWEMOJI_BASE_URL } from "@/lib/constants";
+import { TWEMOJI_BASE_URL, LOCAL_SVG_BASE_URL } from "@/lib/constants";
 import type { EmojiEntry } from "@/lib/types";
 import emojisData from "@/data/emojis.json";
 import availableIds from "@/data/ids.json";
@@ -20,6 +20,11 @@ function unicodeToTwemojiCode(unicode: string): string {
     .map((cp) => cp.toLowerCase())
     .join("-");
 }
+
+const svgBaseUrl =
+  process.env.NEXT_PUBLIC_EMOJI_SOURCE === "local"
+    ? LOCAL_SVG_BASE_URL
+    : TWEMOJI_BASE_URL;
 
 let cachedEmojis: EmojiEntry[] | null = null;
 
@@ -45,7 +50,7 @@ export async function GET() {
       const numOrder = e.order ? parseInt(e.order, 10) : NaN;
       emojis.push({
         code,
-        url: `${TWEMOJI_BASE_URL}/${code}.svg`,
+        url: `${svgBaseUrl}/${code}.svg`,
         name: e.name,
         shortname: e.shortname.replace(/:/g, ""),
         category: e.category || "Other",

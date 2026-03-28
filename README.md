@@ -8,14 +8,6 @@
 
 Generate customizable 3D emoji assets from [Twemoji](https://github.com/jdecked/twemoji) SVGs. Choose from multiple shape presets (coins, speech bubbles), tweak every parameter, preview in real-time, and export as GLB, OBJ, STL, or USDZ — all in your browser. Includes a CLI for batch generation.
 
-
-## Quick Start
-
-### Prerequisites
-
-- Node.js 18+
-- npm
-
 ### Installation
 
 ```bash
@@ -61,6 +53,27 @@ npm run generate -- --shape bubble --emojis joy --format glb --output ./output/
 
 ```bash
 npm run generate -- --shape bubble --emojis all --format glb --output ./output/bubble/
+```
+
+### Speed up batch generation with concurrency
+
+Use `--concurrency` to render multiple emojis in parallel (default: `4`):
+
+```bash
+npm run generate -- --shape bubble --emojis all --format glb --output ./output/bubble/ --concurrency 8
+```
+
+### Avoid CDN rate-limits with local SVGs
+
+High concurrency can trigger jsDelivr rate-limits and cause timeout errors. The recommended workflow for large batch jobs is to download all SVGs first and generate offline:
+
+```bash
+# Step 1 — download ~4 000 SVGs to data/svg/ (one-time, re-run safe)
+python scripts/download_svgs.py
+
+# Step 2 — generate using local files, no CDN dependency
+npm run generate -- --shape bubble --emojis all --format glb --output ./output/ \
+  --emoji-source local --concurrency 8
 ```
 
 For all available flags and per-shape style parameters, see the **[CLI Reference](docs/cli-reference.md)**.

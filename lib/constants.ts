@@ -4,6 +4,9 @@ export const TWEMOJI_VERSION = "17.0.2";
 export const TWEMOJI_BASE_URL = `https://cdn.jsdelivr.net/gh/jdecked/twemoji@${TWEMOJI_VERSION}/assets/svg`;
 export const JSDELIVR_API_URL = `https://data.jsdelivr.com/v1/packages/gh/jdecked/twemoji@${TWEMOJI_VERSION}`;
 
+/** URL prefix used when NEXT_PUBLIC_EMOJI_SOURCE=local. Resolved at runtime by the browser. */
+export const LOCAL_SVG_BASE_URL = "/api/svg";
+
 export const DEFAULT_EMOJI_CODE = "1f602";
 
 export const DEFAULT_COIN: CoinStyle = {

@@ -18,6 +18,64 @@ All examples use the `npm run generate --` shorthand. This is equivalent to runn
 | `--emojis` | yes | `all` | Comma-separated shortnames (e.g. `joy,rocket`), Unicode codes (e.g. `1f602,1f680`), a mix of both, or `all` |
 | `--naming` | no | `unicode` | File naming: `unicode` (e.g. `1f60a.glb`) or `shortname` (e.g. `grinning.glb`) |
 | `--base-url` | no | `http://localhost:3000` | Dev server URL |
+| `--concurrency` | no | `4` | Number of emojis rendered in parallel (see [Concurrency](#concurrency)) |
+| `--emoji-source` | no | `local` | SVG source: `local` (`data/svg/`) or `remote` (jsDelivr CDN) — see [Local SVGs](#local-svgs) |
+
+---
+
+## Concurrency
+
+By default the CLI renders **4 emojis in parallel** using concurrent browser pages. Increase this to speed up large batch jobs; decrease it if you hit memory or stability issues.
+
+```bash
+# Use 8 parallel workers for a faster batch run
+npm run generate -- --shape bubble --emojis all --format glb --output ./output/ --concurrency 8
+
+# Single-threaded (safest, slowest)
+npm run generate -- --shape coin --emojis all --format glb --output ./output/ --concurrency 1
+```
+
+**Tuning tips:**
+- Start with `--concurrency 4` (default) and increase gradually.
+- Values between `4` and `8` are a good sweet spot on most machines.
+- Very high values (16+) can cause the dev server or browser to run out of memory.
+- If you see frequent `[FAIL]` errors, lower the concurrency.
+
+---
+
+## Local SVGs
+
+By default the CLI fetches each emoji SVG from the **jsDelivr CDN** at render time (`--emoji-source remote`). With high concurrency this can trigger CDN rate-limits and cause `TimeoutError` failures.
+
+The recommended fix for large batch jobs is to **download all SVGs once** and then generate entirely offline:
+
+### Step 1 — Download SVGs
+
+```bash
+python scripts/download_svgs.py
+```
+
+This saves all ~4 000 SVGs to `data/svg/`. Already-downloaded files are skipped, so re-running is safe. Options:
+
+```bash
+python scripts/download_svgs.py --concurrency 16 --retries 5
+```
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--concurrency` | `8` | Parallel download threads |
+| `--retries` | `5` | Retry attempts per file on failure |
+
+### Step 2 — Generate with local source
+
+```bash
+npm run generate -- --shape bubble --emojis all --format glb --output ./output/ \
+  --emoji-source local --concurrency 8
+```
+
+With `--emoji-source local` the headless browser loads SVGs from `http://localhost:3000/api/svg/<code>.svg` (served directly from `data/svg/`) instead of the CDN — no network dependency, no rate-limits, and noticeably faster.
+
+> **Note:** The dev server must still be running (`npm run dev`) — it is needed to render the 3D models, even in local mode.
 
 ---
 
