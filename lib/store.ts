@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import type { StyleConfig, ExportFormat, EmojiEntry, FileNaming } from "./types";
-import { DEFAULT_COIN } from "./constants";
+import { DEFAULT_BUBBLE } from "./constants";
 
 interface AppState {
   selectedEmoji: EmojiEntry | null;
@@ -25,7 +25,7 @@ interface AppState {
 
 export const useAppStore = create<AppState>((set) => ({
   selectedEmoji: null,
-  styleConfig: DEFAULT_COIN,
+  styleConfig: DEFAULT_BUBBLE,
   exportFormat: "glb",
   fileNaming: "unicode",
   emojiList: [],

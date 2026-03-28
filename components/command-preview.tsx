@@ -5,8 +5,7 @@ import { useAppStore } from "@/lib/store";
 
 export default function CommandPreview() {
   const { styleConfig, exportFormat, fileNaming, selectedEmoji } = useAppStore();
-  const [expanded, setExpanded] = useState(false);
-  const [copied, setCopied] = useState(false);
+  const [copied, setCopied] = useState<"current" | "batch" | null>(null);
 
   const buildParts = useMemo(() => {
     const parts = ["npx 3d-emoji-gen generate"];
@@ -83,67 +82,51 @@ export default function CommandPreview() {
     return parts.join(" \\\n  ");
   }, [buildParts]);
 
-  const handleCopy = async (text: string) => {
-    const singleLine = text.replace(/ \\\n\s+/g, " ");
-    await navigator.clipboard.writeText(singleLine);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const handleCopy = async (text: string, key: "current" | "batch") => {
+    await navigator.clipboard.writeText(text);
+    setCopied(key);
+    setTimeout(() => setCopied(null), 2000);
   };
 
   return (
-    <div className="flex flex-col gap-2">
-      <button
-        onClick={() => setExpanded(!expanded)}
-        className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-zinc-400 hover:text-zinc-300"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="12"
-          height="12"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          className={`transition-transform ${expanded ? "rotate-90" : ""}`}
-        >
-          <polyline points="9 18 15 12 9 6" />
-        </svg>
+    <div className="flex flex-col gap-1.5">
+      <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
         CLI Command
-      </button>
+      </span>
 
-      {expanded && (
-        <div className="flex flex-col gap-2 rounded-lg border border-zinc-700 bg-zinc-900 p-3">
+      <div className="flex flex-col gap-1.5 rounded-lg border border-zinc-700 bg-zinc-900 p-2.5">
+        <div className="flex flex-col gap-1">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] text-zinc-500">Current emoji</span>
+            <span className="text-[10px] text-zinc-500">Current</span>
             <button
-              onClick={() => handleCopy(command)}
+              onClick={() => handleCopy(command, "current")}
               className="text-[10px] text-blue-400 hover:text-blue-300"
             >
-              {copied ? "Copied!" : "Copy"}
+              {copied === "current" ? "Copied!" : "Copy"}
             </button>
           </div>
-          <pre className="overflow-x-auto text-[11px] leading-relaxed text-green-400">
+          <pre className="overflow-x-auto text-[10px] leading-relaxed text-green-400 font-mono whitespace-pre">
             {command}
           </pre>
-
-          <div className="mt-2 border-t border-zinc-700/50 pt-2">
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] text-zinc-500">
-                Batch (all emojis)
-              </span>
-              <button
-                onClick={() => handleCopy(batchCommand)}
-                className="text-[10px] text-blue-400 hover:text-blue-300"
-              >
-                Copy
-              </button>
-            </div>
-            <pre className="mt-1 overflow-x-auto text-[11px] leading-relaxed text-amber-400">
-              {batchCommand}
-            </pre>
-          </div>
         </div>
-      )}
+
+        <div className="border-t border-zinc-700/50" />
+
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] text-zinc-500">Batch</span>
+            <button
+              onClick={() => handleCopy(batchCommand, "batch")}
+              className="text-[10px] text-blue-400 hover:text-blue-300"
+            >
+              {copied === "batch" ? "Copied!" : "Copy"}
+            </button>
+          </div>
+          <pre className="overflow-x-auto text-[10px] leading-relaxed text-amber-400 font-mono whitespace-pre">
+            {batchCommand}
+          </pre>
+        </div>
+      </div>
     </div>
   );
 }

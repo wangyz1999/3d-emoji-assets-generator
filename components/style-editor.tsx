@@ -20,13 +20,8 @@ function Slider({
   onChange: (v: number) => void;
 }) {
   return (
-    <div className="flex flex-col gap-1">
-      <div className="flex items-center justify-between">
-        <label className="text-xs text-zinc-400">{label}</label>
-        <span className="text-xs font-mono text-zinc-500">
-          {value.toFixed(step < 1 ? 2 : 0)}
-        </span>
-      </div>
+    <div className="flex items-center gap-2">
+      <label className="w-24 shrink-0 text-[11px] text-zinc-400">{label}</label>
       <input
         type="range"
         min={min}
@@ -34,8 +29,11 @@ function Slider({
         step={step}
         value={value}
         onChange={(e) => onChange(parseFloat(e.target.value))}
-        className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-zinc-700 accent-blue-500"
+        className="h-1 min-w-0 flex-1 cursor-pointer appearance-none rounded-full bg-zinc-700 accent-blue-500"
       />
+      <span className="w-8 shrink-0 text-right text-[11px] font-mono text-zinc-500">
+        {value.toFixed(step < 1 ? 2 : 0)}
+      </span>
     </div>
   );
 }
@@ -50,16 +48,16 @@ function ColorInput({
   onChange: (v: string) => void;
 }) {
   return (
-    <div className="flex items-center justify-between gap-3">
-      <label className="text-xs text-zinc-400">{label}</label>
-      <div className="flex items-center gap-2">
+    <div className="flex items-center gap-2">
+      <label className="w-24 shrink-0 text-[11px] text-zinc-400">{label}</label>
+      <div className="flex flex-1 items-center justify-end gap-2">
         <input
           type="color"
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="h-7 w-7 cursor-pointer rounded border border-zinc-600 bg-transparent"
+          className="h-5 w-5 cursor-pointer rounded border border-zinc-600 bg-transparent"
         />
-        <span className="text-xs font-mono text-zinc-500">{value}</span>
+        <span className="text-[11px] font-mono text-zinc-500">{value}</span>
       </div>
     </div>
   );
@@ -75,28 +73,30 @@ function Toggle({
   onChange: (v: boolean) => void;
 }) {
   return (
-    <div className="flex items-center justify-between">
-      <label className="text-xs text-zinc-400">{label}</label>
-      <button
-        onClick={() => onChange(!checked)}
-        className={`relative h-5 w-9 rounded-full transition-colors ${
-          checked ? "bg-blue-500" : "bg-zinc-600"
-        }`}
-      >
-        <span
-          className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-transform ${
-            checked ? "left-[18px]" : "left-0.5"
+    <div className="flex items-center gap-2">
+      <label className="w-24 shrink-0 text-[11px] text-zinc-400">{label}</label>
+      <div className="flex flex-1 justify-end">
+        <button
+          onClick={() => onChange(!checked)}
+          className={`relative h-4 w-7 rounded-full transition-colors ${
+            checked ? "bg-blue-500" : "bg-zinc-600"
           }`}
-        />
-      </button>
+        >
+          <span
+            className={`absolute top-0.5 h-3 w-3 rounded-full bg-white shadow-sm transition-all ${
+              checked ? "left-[14px]" : "left-0.5"
+            }`}
+          />
+        </button>
+      </div>
     </div>
   );
 }
 
 const SHAPE_OPTIONS = [
-  { id: "coin", label: "Coin", defaults: DEFAULT_COIN },
   { id: "bubble", label: "Bubble", defaults: DEFAULT_BUBBLE },
   { id: "pin", label: "Pin", defaults: DEFAULT_PIN },
+  { id: "coin", label: "Coin", defaults: DEFAULT_COIN },
   { id: "badge", label: "Badge", defaults: DEFAULT_BADGE },
 ] as const;
 
@@ -136,7 +136,7 @@ function CoinControls({ config }: { config: CoinStyle }) {
     updateStyleConfig(partial as Partial<StyleConfig>);
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-2">
       <Slider
         label="Radius"
         value={config.radius}
@@ -219,7 +219,7 @@ function BubbleControls({ config }: { config: BubbleStyle }) {
     updateStyleConfig(partial as Partial<StyleConfig>);
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-2">
       <Slider
         label="Radius"
         value={config.radius}
@@ -296,7 +296,7 @@ function PinControls({ config }: { config: PinStyle }) {
     updateStyleConfig(partial as Partial<StyleConfig>);
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-2">
       <Slider
         label="Pin Radius"
         value={config.pinRadius}
@@ -378,7 +378,7 @@ function BadgeControls({ config }: { config: BadgeStyle }) {
     updateStyleConfig(partial as Partial<StyleConfig>);
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-2">
       <Slider
         label="Polygon Sides"
         value={config.sides}

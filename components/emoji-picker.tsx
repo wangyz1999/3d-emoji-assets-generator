@@ -139,7 +139,7 @@ export default function EmojiPicker() {
       <div
         ref={scrollRef}
         onScroll={handleScroll}
-        className="grid max-h-[280px] grid-cols-8 gap-0.5 overflow-y-auto rounded-lg border border-zinc-700 bg-zinc-800/50 p-1.5"
+        className="grid max-h-[224px] grid-cols-8 gap-0.5 overflow-y-auto rounded-lg border border-zinc-700 bg-zinc-800/50 p-1.5"
       >
         {emojiListLoading ? (
           <div className="col-span-8 py-8 text-center text-sm text-zinc-500">
