@@ -61,14 +61,14 @@ export default function ExportPanel() {
     : "";
 
   return (
-    <div className="flex flex-col gap-3">
-      <div>
-        <div className="grid grid-cols-4 gap-1.5">
+    <div className="flex flex-col gap-2">
+      <div className="flex gap-2">
+        <div className="flex gap-px rounded overflow-hidden bg-zinc-700 flex-1">
           {EXPORT_FORMATS.map((fmt) => (
             <button
               key={fmt.id}
               onClick={() => setExportFormat(fmt.id)}
-              className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
+              className={`flex-1 py-1.5 text-xs font-semibold transition-colors ${
                 exportFormat === fmt.id
                   ? "bg-blue-600 text-white"
                   : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-white"
@@ -79,15 +79,12 @@ export default function ExportPanel() {
             </button>
           ))}
         </div>
-      </div>
-
-      <div>
-        <div className="grid grid-cols-2 gap-1.5">
+        <div className="flex gap-px rounded overflow-hidden bg-zinc-700">
           {FILE_NAMING_OPTIONS.map((opt) => (
             <button
               key={opt.id}
               onClick={() => setFileNaming(opt.id)}
-              className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
+              className={`px-3 py-1.5 text-xs font-semibold transition-colors ${
                 fileNaming === opt.id
                   ? "bg-blue-600 text-white"
                   : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-white"
@@ -103,26 +100,16 @@ export default function ExportPanel() {
       <button
         onClick={handleExport}
         disabled={!selectedEmoji || isExporting}
-        className="flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition-all hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
+        className="flex items-center justify-center gap-1.5 rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white transition-all hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
       >
         {isExporting ? (
           <>
-            <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+            <span className="inline-block h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
             Exporting...
           </>
         ) : (
           <>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
               <polyline points="7 10 12 15 17 10" />
               <line x1="12" y1="15" x2="12" y2="3" />

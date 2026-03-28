@@ -5,6 +5,7 @@ import EmojiPicker from "@/components/emoji-picker";
 import StyleEditor from "@/components/style-editor";
 import ExportPanel from "@/components/export-panel";
 import CommandPreview from "@/components/command-preview";
+import MobileExportBar from "@/components/mobile-export-bar";
 
 const PreviewCanvas = dynamic(() => import("@/components/preview-canvas"), {
   ssr: false,
@@ -65,18 +66,35 @@ export default function Home() {
         </div>
 
         <div className="flex-1 overflow-y-auto">
-          <div className="flex flex-col gap-5 p-5">
+          <div className="flex flex-col gap-3 p-5 lg:gap-5">
             <StyleEditor />
             <EmojiPicker />
-            <ExportPanel />
-            <CommandPreview />
+            {/* Mobile: compact single-row export + format + CLI */}
+            <div className="lg:hidden">
+              <MobileExportBar />
+            </div>
+            {/* Desktop: full export panel + CLI preview */}
+            <div className="hidden lg:flex lg:flex-col lg:gap-5">
+              <ExportPanel />
+              <CommandPreview />
+            </div>
           </div>
+          <p className="attribution-sidebar px-5 pt-3 pb-4 text-xs text-zinc-500">
+            Emoji graphics by{" "}
+            <a href="https://github.com/jdecked/twemoji" target="_blank" rel="noopener noreferrer" className="text-zinc-400 underline hover:text-white">Twemoji</a>{" "}
+            © Twitter/X Corp, licensed under{" "}
+            <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer" className="text-zinc-400 underline hover:text-white">CC-BY 4.0</a>
+          </p>
         </div>
       </aside>
 
       {/* Right Panel - 3D Preview */}
       <main className="relative min-h-[400px] flex-1">
         <PreviewCanvas />
+        <p className="attribution-canvas absolute bottom-2 left-0 right-0 text-center text-xs text-zinc-500">
+          Emoji graphics by{" "}
+          <a href="https://github.com/jdecked/twemoji" target="_blank" rel="noopener noreferrer" className="text-zinc-400 underline hover:text-white">Twemoji</a>
+        </p>
       </main>
     </div>
   );

@@ -8,7 +8,7 @@ export default function CommandPreview() {
   const [copied, setCopied] = useState<"current" | "batch" | null>(null);
 
   const buildParts = useMemo(() => {
-    const parts = ["npx 3d-emoji-gen generate"];
+    const parts = ["npm run generate --"];
 
     parts.push(`--shape ${styleConfig.shape}`);
     parts.push(`--format ${exportFormat}`);
@@ -70,7 +70,10 @@ export default function CommandPreview() {
   const command = useMemo(() => {
     const parts = [...buildParts];
     if (selectedEmoji) {
-      parts.push(`--emojis ${selectedEmoji.code}`);
+      const id = selectedEmoji.shortname
+        ? selectedEmoji.shortname.replace(/:/g, "")
+        : selectedEmoji.code;
+      parts.push(`--emojis ${id}`);
     } else {
       parts.push("--emojis all");
     }

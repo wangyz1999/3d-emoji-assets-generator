@@ -51,3 +51,18 @@ input[type="range"]::-moz-range-thumb {
 ::-webkit-scrollbar-thumb:hover {
   background: #52525b;
 }
+
+.attribution-sidebar {
+  display: none;
+}
+.attribution-canvas {
+  display: block;
+}
+@media (min-width: 1024px) {
+  .attribution-sidebar {
+    display: block;
+  }
+  .attribution-canvas {
+    display: none;
+  }
+}

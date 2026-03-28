@@ -28,17 +28,37 @@ function unicodeToTwemojiCode(unicode: string): string {
     .join("-");
 }
 
-async function loadEmojiMap(): Promise<Map<string, RawEmoji>> {
+interface EmojiMaps {
+  byCode: Map<string, RawEmoji>;
+  byShortname: Map<string, string>; // shortname (no colons) -> code
+}
+
+async function loadEmojiMaps(): Promise<EmojiMaps> {
   const dataPath = resolve(__dirname, "..", "data", "emojis.json");
   const raw = JSON.parse(await readFile(dataPath, "utf-8"));
-  const map = new Map<string, RawEmoji>();
+  const byCode = new Map<string, RawEmoji>();
+  const byShortname = new Map<string, string>();
   for (const e of raw.emojis as RawEmoji[]) {
     if (e.unicode) {
       const code = unicodeToTwemojiCode(e.unicode);
-      map.set(code, e);
+      byCode.set(code, e);
+      if (e.shortname) {
+        const bare = e.shortname.replace(/:/g, "").toLowerCase();
+        byShortname.set(bare, code);
+      }
     }
   }
-  return map;
+  return { byCode, byShortname };
+}
+
+function resolveEmojiCode(input: string, byShortname: Map<string, string>): string {
+  // Already a unicode code (e.g. "1f602" or "1f1fa-1f1f8")
+  if (/^[0-9a-f]+([-][0-9a-f]+)*$/i.test(input)) return input.toLowerCase();
+  // Shortname with or without colons (e.g. "joy" or ":joy:")
+  const bare = input.replace(/:/g, "").toLowerCase();
+  const resolved = byShortname.get(bare);
+  if (!resolved) throw new Error(`Unknown emoji shortname: "${input}"`);
+  return resolved;
 }
 
 async function fetchAllEmojiCodes(): Promise<string[]> {
@@ -138,12 +158,14 @@ export async function generate(options: GenerateOptions): Promise<void> {
   let { emojis } = options;
 
   console.log("Loading emoji data...");
-  const emojiMap = await loadEmojiMap();
+  const { byCode: emojiMap, byShortname } = await loadEmojiMaps();
 
   if (emojis.length === 1 && emojis[0] === "all") {
     console.log("Fetching complete emoji list...");
     emojis = await fetchAllEmojiCodes();
     console.log(`Found ${emojis.length} emojis`);
+  } else {
+    emojis = emojis.map((e) => resolveEmojiCode(e, byShortname));
   }
 
   const outputDir = resolve(output);

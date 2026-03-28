@@ -181,10 +181,30 @@ function CLIRenderContent() {
   }, [generate]);
 
   return (
-    <div className="flex h-screen items-center justify-center bg-black text-white">
+    <div className="relative flex h-screen flex-col items-center justify-center bg-black text-white">
       <div ref={statusRef} id="status" className="text-sm">
         Initializing...
       </div>
+      <p className="absolute bottom-3 text-[10px] text-zinc-600">
+        Emoji graphics by{" "}
+        <a
+          href="https://github.com/jdecked/twemoji"
+          className="underline hover:text-zinc-400"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Twemoji
+        </a>{" "}
+        © Twitter/X Corp, licensed under{" "}
+        <a
+          href="https://creativecommons.org/licenses/by/4.0/"
+          className="underline hover:text-zinc-400"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          CC-BY 4.0
+        </a>
+      </p>
     </div>
   );
 }
