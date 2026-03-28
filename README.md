@@ -8,6 +8,10 @@
 
 Generate customizable 3D emoji assets from [Twemoji](https://github.com/jdecked/twemoji) SVGs. Choose from multiple shape presets (coins, speech bubbles), tweak every parameter, preview in real-time, and export as GLB, OBJ, STL, or USDZ — all in your browser. Includes a CLI for batch generation.
 
+
+https://github.com/user-attachments/assets/b467c1c2-de8d-41b6-a30c-3742ca9ac199
+
+
 ## Download Pre-generated Assets
 
 Pre-generated 4,009 emoji GLB asset packs are available for download in both **bubble** and **coin** shapes (~250 MB).
