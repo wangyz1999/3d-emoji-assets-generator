@@ -9,6 +9,9 @@
 Generate customizable 3D emoji assets from [Twemoji](https://github.com/jdecked/twemoji) SVGs. Choose from multiple shape presets (coins, speech bubbles), tweak every parameter, preview in real-time, and export as GLB, OBJ, STL, or USDZ — all in your browser. Includes a CLI for batch generation.
 
 
+<img width="3572" height="2380" alt="app" src="https://github.com/user-attachments/assets/05b90345-1b10-446c-ad18-54c1e5516a1c" />
+
+
 https://github.com/user-attachments/assets/b467c1c2-de8d-41b6-a30c-3742ca9ac199
 
 
