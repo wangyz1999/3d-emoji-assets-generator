@@ -44,7 +44,7 @@ export const metadata: Metadata = {
   creator: "3D Emoji Generator",
   publisher: "3D Emoji Generator",
   alternates: {
-    canonical: siteUrl,
+    canonical: "/",
   },
   openGraph: {
     type: "website",
