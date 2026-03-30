@@ -25,6 +25,7 @@ interface GenerateOptions {
   concurrency: number;
   emojiSource: EmojiSource;
   retries: number;
+  mergeMaterials?: boolean;
 }
 
 function unicodeToTwemojiCode(unicode: string): string {
@@ -110,12 +111,13 @@ function getOutputFilename(
   return emojiCode;
 }
 
-function buildQueryParams(config: StyleConfig, emoji: string, format: ExportFormat, emojiSource: EmojiSource): string {
+function buildQueryParams(config: StyleConfig, emoji: string, format: ExportFormat, emojiSource: EmojiSource, mergeMaterials?: boolean): string {
   const params = new URLSearchParams();
   params.set("emoji", emoji);
   params.set("format", format);
   params.set("shape", config.shape);
   params.set("emojiSource", emojiSource);
+  if (mergeMaterials) params.set("mergeMaterials", "true");
 
   if (config.shape === "coin") {
     params.set("radius", String(config.radius));
@@ -183,9 +185,10 @@ async function processEmoji(
   baseUrl: string,
   emojiMap: Map<string, RawEmoji>,
   emojiSource: EmojiSource,
-  retries: number
+  retries: number,
+  mergeMaterials?: boolean,
 ): Promise<"ok" | "error"> {
-  const query = buildQueryParams(config, emoji, format, emojiSource);
+  const query = buildQueryParams(config, emoji, format, emojiSource, mergeMaterials);
   const url = `${baseUrl}/cli-render?${query}`;
 
   for (let attempt = 1; attempt <= retries; attempt++) {
@@ -252,7 +255,7 @@ async function processEmoji(
 }
 
 export async function generate(options: GenerateOptions): Promise<void> {
-  const { config, format, naming, output, baseUrl, concurrency, emojiSource, retries } = options;
+  const { config, format, naming, output, baseUrl, concurrency, emojiSource, retries, mergeMaterials } = options;
   let { emojis } = options;
 
   console.log("Loading emoji data...");
@@ -289,7 +292,7 @@ export async function generate(options: GenerateOptions): Promise<void> {
     emojis.map((emoji) =>
       limit(async () => {
         const result = await processEmoji(
-          browser, emoji, config, format, naming, outputDir, baseUrl, emojiMap, emojiSource, retries
+          browser, emoji, config, format, naming, outputDir, baseUrl, emojiMap, emojiSource, retries, mergeMaterials
         );
         if (result === "ok") {
           completed++;

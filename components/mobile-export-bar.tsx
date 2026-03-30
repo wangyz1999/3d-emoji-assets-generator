@@ -38,6 +38,8 @@ export default function MobileExportBar() {
     setExportFormat,
     fileNaming,
     setFileNaming,
+    mergeMaterials,
+    setMergeMaterials,
     isExporting,
     setIsExporting,
     styleConfig,
@@ -61,7 +63,9 @@ export default function MobileExportBar() {
     try {
       const filename =
         fileNaming === "shortname" ? selectedEmoji.shortname : selectedEmoji.code;
-      await exportModel(modelRef.current, exportFormat, filename);
+      await exportModel(modelRef.current, exportFormat, filename, {
+        mergeMaterials,
+      });
     } catch {
       setError("Export failed. Please try again.");
     } finally {
@@ -127,8 +131,9 @@ export default function MobileExportBar() {
       parts.push(`--emoji-scale ${styleConfig.emojiScale}`);
       if (!styleConfig.doubleSided) parts.push("--single-sided");
     }
+    if (mergeMaterials) parts.push("--merge-materials");
     return parts;
-  }, [styleConfig, exportFormat, fileNaming]);
+  }, [styleConfig, exportFormat, fileNaming, mergeMaterials]);
 
   const command = useMemo(() => {
     const parts = [...buildParts];
@@ -232,6 +237,23 @@ export default function MobileExportBar() {
               ))}
             </div>
           </div>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <button
+              onClick={() => setMergeMaterials(!mergeMaterials)}
+              className={`relative h-4 w-7 rounded-full transition-colors ${
+                mergeMaterials ? "bg-blue-500" : "bg-zinc-600"
+              }`}
+            >
+              <span
+                className={`absolute top-0.5 h-3 w-3 rounded-full bg-white shadow-sm transition-all ${
+                  mergeMaterials ? "left-[14px]" : "left-0.5"
+                }`}
+              />
+            </button>
+            <span className="text-[11px] text-zinc-400">
+              Merge into single material
+            </span>
+          </label>
         </div>
       )}
 

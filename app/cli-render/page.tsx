@@ -14,15 +14,18 @@ import { GLTFExporter } from "three/addons/exporters/GLTFExporter.js";
 import { OBJExporter } from "three/addons/exporters/OBJExporter.js";
 import { STLExporter } from "three/addons/exporters/STLExporter.js";
 import { USDZExporter } from "three/addons/exporters/USDZExporter.js";
+import { mergeToSingleMaterial } from "@/lib/three/merge-materials";
 
 function parseConfig(params: URLSearchParams): {
   config: CoinStyle | BubbleStyle | PinStyle | BadgeStyle | FlatStyle;
   emoji: string;
   format: ExportFormat;
+  mergeMaterials: boolean;
 } {
   const shape = params.get("shape") ?? "coin";
   const emoji = params.get("emoji") ?? "1f60a";
   const format = (params.get("format") ?? "glb") as ExportFormat;
+  const mergeMaterials = params.get("mergeMaterials") === "true";
 
   if (shape === "bubble") {
     const config: BubbleStyle = {
@@ -37,7 +40,7 @@ function parseConfig(params: URLSearchParams): {
       emojiScale: parseFloat(params.get("emojiScale") ?? String(DEFAULT_BUBBLE.emojiScale)),
       doubleSided: params.get("doubleSided") !== "false",
     };
-    return { config, emoji, format };
+    return { config, emoji, format, mergeMaterials };
   }
 
   if (shape === "pin") {
@@ -54,7 +57,7 @@ function parseConfig(params: URLSearchParams): {
       emojiScale: parseFloat(params.get("emojiScale") ?? String(DEFAULT_PIN.emojiScale)),
       doubleSided: params.get("doubleSided") !== "false",
     };
-    return { config, emoji, format };
+    return { config, emoji, format, mergeMaterials };
   }
 
   if (shape === "badge") {
@@ -72,7 +75,7 @@ function parseConfig(params: URLSearchParams): {
       emojiScale: parseFloat(params.get("emojiScale") ?? String(DEFAULT_BADGE.emojiScale)),
       doubleSided: params.get("doubleSided") !== "false",
     };
-    return { config, emoji, format };
+    return { config, emoji, format, mergeMaterials };
   }
 
   if (shape === "flat") {
@@ -83,7 +86,7 @@ function parseConfig(params: URLSearchParams): {
       roughness: parseFloat(params.get("roughness") ?? String(DEFAULT_FLAT.roughness)),
       metalness: parseFloat(params.get("metalness") ?? String(DEFAULT_FLAT.metalness)),
     };
-    return { config, emoji, format };
+    return { config, emoji, format, mergeMaterials };
   }
 
   const config: CoinStyle = {
@@ -99,13 +102,17 @@ function parseConfig(params: URLSearchParams): {
     emojiScale: parseFloat(params.get("emojiScale") ?? String(DEFAULT_COIN.emojiScale)),
     doubleSided: params.get("doubleSided") !== "false",
   };
-  return { config, emoji, format };
+  return { config, emoji, format, mergeMaterials };
 }
 
 async function exportToBuffer(
   model: THREE.Group,
-  format: ExportFormat
+  format: ExportFormat,
+  shouldMergeMaterials: boolean = false,
 ): Promise<{ buffer: ArrayBuffer | string | Uint8Array; ext: string }> {
+  if (shouldMergeMaterials) {
+    model = mergeToSingleMaterial(model);
+  }
   model.rotation.set(0, 0, 0);
   model.position.set(0, 0, 0);
 
@@ -144,7 +151,7 @@ function CLIRenderContent() {
   const statusRef = useRef<HTMLDivElement>(null);
 
   const generate = useCallback(async () => {
-    const { config, emoji, format } = parseConfig(searchParams);
+    const { config, emoji, format, mergeMaterials: shouldMerge } = parseConfig(searchParams);
     const emojiSource = searchParams.get("emojiSource") ?? "remote";
     const svgBase = emojiSource === "local" ? LOCAL_SVG_BASE_URL : TWEMOJI_BASE_URL;
     const svgUrl = `${svgBase}/${emoji}.svg`;
@@ -167,7 +174,7 @@ function CLIRenderContent() {
         ({ group: model } = await buildFlat(config as FlatStyle, svgUrl));
       }
 
-      const { buffer, ext } = await exportToBuffer(model, format);
+      const { buffer, ext } = await exportToBuffer(model, format, shouldMerge);
 
       // Signal Puppeteer that the model is ready
       (window as unknown as Record<string, unknown>).__exportResult = {

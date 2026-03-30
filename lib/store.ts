@@ -7,6 +7,7 @@ interface AppState {
   styleConfig: StyleConfig;
   exportFormat: ExportFormat;
   fileNaming: FileNaming;
+  mergeMaterials: boolean;
   emojiList: EmojiEntry[];
   emojiListLoading: boolean;
   isExporting: boolean;
@@ -19,6 +20,7 @@ interface AppState {
   updateStyleConfig: (partial: Partial<StyleConfig>) => void;
   setExportFormat: (format: ExportFormat) => void;
   setFileNaming: (naming: FileNaming) => void;
+  setMergeMaterials: (merge: boolean) => void;
   setEmojiList: (list: EmojiEntry[]) => void;
   setEmojiListLoading: (loading: boolean) => void;
   setIsExporting: (exporting: boolean) => void;
@@ -33,6 +35,7 @@ export const useAppStore = create<AppState>((set) => ({
   styleConfig: DEFAULT_FLAT,
   exportFormat: "glb",
   fileNaming: "unicode",
+  mergeMaterials: true,
   emojiList: [],
   emojiListLoading: true,
   isExporting: false,
@@ -48,6 +51,7 @@ export const useAppStore = create<AppState>((set) => ({
     })),
   setExportFormat: (format) => set({ exportFormat: format }),
   setFileNaming: (naming) => set({ fileNaming: naming }),
+  setMergeMaterials: (merge) => set({ mergeMaterials: merge }),
   setEmojiList: (list) => set({ emojiList: list }),
   setEmojiListLoading: (loading) => set({ emojiListLoading: loading }),
   setIsExporting: (exporting) => set({ isExporting: exporting }),

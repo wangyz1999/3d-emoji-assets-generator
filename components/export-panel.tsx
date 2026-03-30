@@ -26,6 +26,8 @@ export default function ExportPanel() {
     setExportFormat,
     fileNaming,
     setFileNaming,
+    mergeMaterials,
+    setMergeMaterials,
     isExporting,
     setIsExporting,
   } = useAppStore();
@@ -47,7 +49,9 @@ export default function ExportPanel() {
 
     try {
       const filename = getExportFilename(selectedEmoji, fileNaming);
-      await exportModel(modelRef.current, exportFormat, filename);
+      await exportModel(modelRef.current, exportFormat, filename, {
+        mergeMaterials,
+      });
     } catch (err) {
       console.error("Export failed:", err);
       setError("Export failed. Please try again.");
@@ -96,6 +100,27 @@ export default function ExportPanel() {
           ))}
         </div>
       </div>
+
+      <label
+        className="flex items-center gap-2 cursor-pointer"
+        title="Bake all colors into a single texture atlas so the exported model uses one material — ideal for game engines like Unreal / Unity"
+      >
+        <button
+          onClick={() => setMergeMaterials(!mergeMaterials)}
+          className={`relative h-4 w-7 rounded-full transition-colors ${
+            mergeMaterials ? "bg-blue-500" : "bg-zinc-600"
+          }`}
+        >
+          <span
+            className={`absolute top-0.5 h-3 w-3 rounded-full bg-white shadow-sm transition-all ${
+              mergeMaterials ? "left-[14px]" : "left-0.5"
+            }`}
+          />
+        </button>
+        <span className="text-[11px] text-zinc-400">
+          Merge into single material
+        </span>
+      </label>
 
       <button
         onClick={handleExport}

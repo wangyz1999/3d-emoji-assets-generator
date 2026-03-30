@@ -4,6 +4,7 @@ import { OBJExporter } from "three/addons/exporters/OBJExporter.js";
 import { STLExporter } from "three/addons/exporters/STLExporter.js";
 import { USDZExporter } from "three/addons/exporters/USDZExporter.js";
 import type { ExportFormat } from "../types";
+import { mergeToSingleMaterial } from "./merge-materials";
 
 function downloadBlob(blob: Blob, filename: string) {
   const link = document.createElement("a");
@@ -16,32 +17,61 @@ function downloadBlob(blob: Blob, filename: string) {
   URL.revokeObjectURL(link.href);
 }
 
+function disposeGroup(obj: THREE.Object3D) {
+  obj.traverse((child) => {
+    if (child instanceof THREE.Mesh) {
+      child.geometry?.dispose();
+      const mats = Array.isArray(child.material)
+        ? child.material
+        : [child.material];
+      mats.forEach((m) => {
+        if (m.map) m.map.dispose();
+        if (m.emissiveMap) m.emissiveMap.dispose();
+        if (m.roughnessMap) m.roughnessMap.dispose();
+        if (m.metalnessMap) m.metalnessMap.dispose();
+        m.dispose();
+      });
+    }
+  });
+}
+
+export interface ExportOptions {
+  mergeMaterials?: boolean;
+}
+
 export async function exportModel(
   object: THREE.Group,
   format: ExportFormat,
-  filename: string
+  filename: string,
+  options: ExportOptions = {},
 ): Promise<void> {
   const originalRotation = object.rotation.clone();
   const originalPosition = object.position.clone();
   object.rotation.set(0, 0, 0);
   object.position.set(0, 0, 0);
 
+  let target: THREE.Group = object;
+  if (options.mergeMaterials) {
+    target = mergeToSingleMaterial(object);
+  }
+
   try {
     switch (format) {
       case "glb":
-        await exportGLB(object, filename);
+        await exportGLB(target, filename);
         break;
       case "obj":
-        exportOBJ(object, filename);
+        exportOBJ(target, filename);
         break;
       case "stl":
-        exportSTL(object, filename);
+        exportSTL(target, filename);
         break;
       case "usdz":
-        await exportUSDZ(object, filename);
+        await exportUSDZ(target, filename);
         break;
     }
   } finally {
+    if (target !== object) disposeGroup(target);
     object.rotation.copy(originalRotation);
     object.position.copy(originalPosition);
   }

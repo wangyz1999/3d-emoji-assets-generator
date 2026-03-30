@@ -52,6 +52,7 @@ program
   .option("--badge-radius <n>", "Badge outer radius", String(DEFAULT_BADGE.badgeRadius))
   .option("--frame-color <hex>", "Badge frame color", DEFAULT_BADGE.frameColor)
   .option("--emissive-intensity <n>", "Badge glow intensity", String(DEFAULT_BADGE.emissiveIntensity))
+  .option("--merge-materials", "Bake all colors into one texture atlas (single material)")
   .action(async (opts) => {
     const shape = opts.shape as StyleConfig["shape"];
     const format = opts.format as ExportFormat;
@@ -61,6 +62,7 @@ program
     const retries = Math.max(1, parseInt(opts.retries, 10) || 3);
     const emojiSource: EmojiSource =
       opts.emojiSource === "local" ? "local" : "remote";
+    const mergeMaterials = !!opts.mergeMaterials;
 
     let config: StyleConfig;
 
@@ -138,7 +140,9 @@ program
     console.log(`  Output:       ${opts.output}`);
     console.log(`  Concurrency:  ${concurrency}`);
     console.log(`  Retries:      ${retries}`);
-    console.log(`  Emoji source: ${emojiSource}\n`);
+    console.log(`  Emoji source: ${emojiSource}`);
+    if (mergeMaterials) console.log(`  Merge mats:   yes`);
+    console.log();
 
     await generate({
       config,
@@ -150,6 +154,7 @@ program
       concurrency,
       retries,
       emojiSource,
+      mergeMaterials,
     });
   });
 

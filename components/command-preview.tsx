@@ -4,7 +4,7 @@ import { useState, useMemo } from "react";
 import { useAppStore } from "@/lib/store";
 
 export default function CommandPreview() {
-  const { styleConfig, exportFormat, fileNaming, selectedEmoji } = useAppStore();
+  const { styleConfig, exportFormat, fileNaming, mergeMaterials, selectedEmoji } = useAppStore();
   const [copied, setCopied] = useState<"current" | "batch" | null>(null);
 
   const buildParts = useMemo(() => {
@@ -69,8 +69,10 @@ export default function CommandPreview() {
       parts.push(`--emoji-scale ${styleConfig.emojiScale}`);
     }
 
+    if (mergeMaterials) parts.push("--merge-materials");
+
     return parts;
-  }, [styleConfig, exportFormat, fileNaming]);
+  }, [styleConfig, exportFormat, fileNaming, mergeMaterials]);
 
   const command = useMemo(() => {
     const parts = [...buildParts];
