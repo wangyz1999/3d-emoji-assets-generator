@@ -10,7 +10,7 @@
 
 Generate customizable 3D emoji assets from [Twemoji](https://github.com/jdecked/twemoji) SVGs. Choose from multiple shape presets (coins, speech bubbles), tweak every parameter, preview in real-time, and export as GLB, OBJ, STL, or USDZ — all in your browser. Includes a CLI for batch generation.
 
-Pre-generated packs of all 4,009 emojis in **bubble**, **coin**, and **flat** shapes are also [available for download](https://drive.google.com/drive/folders/1zSVN45hfUKDhuf6YsjPyC4E12omm_R5b?usp=drive_link)
+Pre-generated packs of all 4,009 emojis in **bubble**, **coin**, and **flat** shapes are also [available for download](https://github.com/wangyz1999/3d-emoji-assets-generator?tab=readme-ov-file#download-pre-generated-assets)
 
 <details>
 <summary><strong>How it works</strong></summary>
