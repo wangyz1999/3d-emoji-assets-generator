@@ -67,7 +67,7 @@ export const DEFAULT_BADGE: BadgeStyle = {
 
 export const DEFAULT_FLAT: FlatStyle = {
   shape: "flat",
-  depth: 2,
+  depth: 5,
   emojiScale: 1.3,
   roughness: 0.3,
   metalness: 0.1,

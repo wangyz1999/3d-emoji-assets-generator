@@ -10,16 +10,18 @@ import { buildBubble } from "@/lib/three/bubble-builder";
 import { buildPin } from "@/lib/three/pin-builder";
 import { buildBadge } from "@/lib/three/badge-builder";
 import { buildFlat } from "@/lib/three/flat-builder";
-import { Pause, Play, RefreshCw, Grid3x3, SunDim, Layers } from "lucide-react";
+import { Pause, Play, RefreshCw, Grid3x3, SunDim, Layers, Camera, Maximize, Minimize } from "lucide-react";
 
-type EnvTheme = "dark" | "neon" | "sky" | "stars" | "fog";
+type EnvTheme = "dark" | "neon" | "sky" | "stars" | "fog" | "chroma-green" | "chroma-blue";
 
 const ENV_THEMES: { id: EnvTheme; label: string }[] = [
-  { id: "dark",  label: "Dark"  },
-  { id: "neon",  label: "Neon"  },
-  { id: "sky",   label: "Sky"   },
-  { id: "stars", label: "Stars" },
-  { id: "fog",   label: "Fog"   },
+  { id: "dark",         label: "Dark"         },
+  { id: "neon",         label: "Neon"         },
+  { id: "sky",          label: "Sky"          },
+  { id: "stars",        label: "Stars"        },
+  { id: "fog",          label: "Fog"          },
+  { id: "chroma-green", label: "Chroma Green" },
+  { id: "chroma-blue",  label: "Chroma Blue"  },
 ];
 
 // Per-theme config used both inside and outside the Canvas
@@ -30,11 +32,13 @@ const THEME_CONFIG: Record<EnvTheme, {
   fogFar: number;
   fogExp: boolean;           // true = fogExp2, false = linear fog
 }> = {
-  dark:  { bg: "#141419", fogColor: "#141419", fogNear: 0,  fogFar: 0,  fogExp: true  },
-  neon:  { bg: "#0a0014", fogColor: null,       fogNear: 0,  fogFar: 0,  fogExp: false },
-  sky:   { bg: "#87ceeb", fogColor: null,       fogNear: 0,  fogFar: 0,  fogExp: false },
-  stars: { bg: "#141419", fogColor: null,       fogNear: 0,  fogFar: 0,  fogExp: false },
-  fog:   { bg: "#c8d8e8", fogColor: "#c8d8e8",  fogNear: 6,  fogFar: 22, fogExp: false },
+  dark:         { bg: "#141419", fogColor: "#141419", fogNear: 0,  fogFar: 0,  fogExp: true  },
+  neon:         { bg: "#0a0014", fogColor: null,       fogNear: 0,  fogFar: 0,  fogExp: false },
+  sky:          { bg: "#87ceeb", fogColor: null,       fogNear: 0,  fogFar: 0,  fogExp: false },
+  stars:        { bg: "#141419", fogColor: null,       fogNear: 0,  fogFar: 0,  fogExp: false },
+  fog:          { bg: "#c8d8e8", fogColor: "#c8d8e8",  fogNear: 6,  fogFar: 22, fogExp: false },
+  "chroma-green": { bg: "#00ff00", fogColor: null,     fogNear: 0,  fogFar: 0,  fogExp: false },
+  "chroma-blue":  { bg: "#0000ff", fogColor: null,     fogNear: 0,  fogFar: 0,  fogExp: false },
 };
 
 function disposeObject(obj: THREE.Object3D) {
@@ -168,7 +172,7 @@ function SceneContent({
 
       <group ref={groupRef} />
 
-      {showShadow && envTheme !== "neon" && envTheme !== "stars" && (
+      {showShadow && envTheme !== "neon" && envTheme !== "stars" && envTheme !== "chroma-green" && envTheme !== "chroma-blue" && (
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -4, 0]} receiveShadow>
           <planeGeometry args={[50, 50]} />
           <shadowMaterial opacity={0.3} />
@@ -180,14 +184,47 @@ function SceneContent({
 
 export default function PreviewCanvas() {
   const [animated, setAnimated] = useState(true);
-  const [rotateDir, setRotateDir] = useState<1 | -1>(1);
+  const [rotateDir, setRotateDir] = useState<1 | -1>(-1);
   const [wireframe, setWireframe] = useState(false);
   const [showShadow, setShowShadow] = useState(true);
   const [envIndex, setEnvIndex] = useState(0);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const modelRef = useRef<THREE.Group | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const glRef = useRef<THREE.WebGLRenderer | null>(null);
 
   const handleModelReady = useCallback((model: THREE.Group | null) => {
     modelRef.current = model;
+  }, []);
+
+  const handleScreenshot = useCallback(() => {
+    if (!glRef.current) return;
+    const canvas = glRef.current.domElement;
+    // Re-render one frame to ensure preserveDrawingBuffer captures correctly
+    const dataUrl = canvas.toDataURL("image/png");
+    const a = document.createElement("a");
+    a.href = dataUrl;
+    a.download = "emoji3d-screenshot.png";
+    a.click();
+  }, []);
+
+  const handleFullscreen = useCallback(() => {
+    if (!containerRef.current) return;
+    if (!document.fullscreenElement) {
+      containerRef.current.requestFullscreen();
+    } else {
+      document.exitFullscreen();
+    }
+  }, []);
+
+  useEffect(() => {
+    const onFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+      // Force R3F to re-measure the canvas after fullscreen transition
+      setTimeout(() => window.dispatchEvent(new Event("resize")), 100);
+    };
+    document.addEventListener("fullscreenchange", onFullscreenChange);
+    return () => document.removeEventListener("fullscreenchange", onFullscreenChange);
   }, []);
 
   const envTheme = ENV_THEMES[envIndex].id;
@@ -198,8 +235,9 @@ export default function PreviewCanvas() {
     "flex items-center justify-center rounded-full bg-white/10 p-2 text-white backdrop-blur-sm transition hover:bg-white/20";
 
   return (
-    <div className="relative h-full w-full">
+    <div ref={containerRef} className="relative h-full w-full">
       <Canvas
+        onCreated={({ gl }) => { glRef.current = gl; }}
         fallback={
           <div className="flex h-full w-full flex-col items-center justify-center gap-3 bg-zinc-900 text-center text-sm text-zinc-400">
             <span className="text-2xl">⚠️</span>
@@ -217,6 +255,7 @@ export default function PreviewCanvas() {
         gl={{
           antialias: true,
           toneMapping: THREE.NoToneMapping,
+          preserveDrawingBuffer: true,
         }}
       >
         <color attach="background" args={[cfg.bg]} />
@@ -229,10 +268,10 @@ export default function PreviewCanvas() {
           <fog attach="fog" args={[cfg.fogColor, cfg.fogNear, cfg.fogFar]} />
         )}
 
-        <ambientLight intensity={envTheme === "neon" ? 0.2 : 0.6} />
+        <ambientLight intensity={envTheme === "neon" ? 0.2 : envTheme === "chroma-green" || envTheme === "chroma-blue" ? 1.2 : 0.6} />
         <directionalLight
           position={[5, 8, 5]}
-          intensity={envTheme === "sky" ? 1.0 : 1.5}
+          intensity={envTheme === "sky" ? 1.0 : envTheme === "chroma-green" || envTheme === "chroma-blue" ? 1.2 : 1.5}
           castShadow
           shadow-mapSize-width={1024}
           shadow-mapSize-height={1024}
@@ -243,7 +282,7 @@ export default function PreviewCanvas() {
             <pointLight position={[-4, 2,  4]} intensity={3} color="#ff00cc" />
             <pointLight position={[ 4, 2, -4]} intensity={3} color="#00ffff" />
           </>
-        ) : (
+        ) : envTheme === "chroma-green" || envTheme === "chroma-blue" ? null : (
           <pointLight position={[-5, 0, -5]} intensity={1} color="#e0e7ff" />
         )}
 
@@ -266,6 +305,20 @@ export default function PreviewCanvas() {
 
       <div className="absolute bottom-3 right-3 flex flex-col gap-2">
         <button
+          onClick={handleFullscreen}
+          className={btnClass}
+          title={isFullscreen ? "Exit fullscreen" : "View fullscreen"}
+        >
+          {isFullscreen ? <Minimize size={16} /> : <Maximize size={16} />}
+        </button>
+        <button
+          onClick={handleScreenshot}
+          className={btnClass}
+          title="Take screenshot"
+        >
+          <Camera size={16} />
+        </button>
+        <button
           onClick={() => setEnvIndex((i) => (i + 1) % ENV_THEMES.length)}
           className={btnClass}
           title={`Environment: ${envLabel} (click to cycle)`}
@@ -274,10 +327,10 @@ export default function PreviewCanvas() {
         </button>
         <button
           onClick={() => setRotateDir((d) => (d === 1 ? -1 : 1))}
-          className={`${btnClass} ${rotateDir === -1 ? "bg-white/30" : ""}`}
-          title={rotateDir === 1 ? "Switch to counter-clockwise" : "Switch to clockwise"}
+          className={`${btnClass} ${rotateDir === 1 ? "bg-white/30" : ""}`}
+          title={rotateDir === -1 ? "Switch to counter-clockwise" : "Switch to clockwise"}
         >
-          <RefreshCw size={16} className={rotateDir === -1 ? "-scale-x-100" : ""} />
+          <RefreshCw size={16} className={rotateDir === 1 ? "-scale-x-100" : ""} />
         </button>
         <button
           onClick={() => setWireframe((w) => !w)}
