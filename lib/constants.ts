@@ -21,6 +21,7 @@ export const DEFAULT_COIN: CoinStyle = {
   metalness: 0.2,
   roughness: 0.4,
   emojiScale: 1.3,
+  curveSegments: 8,
 };
 
 export const DEFAULT_BUBBLE: BubbleStyle = {
@@ -34,6 +35,7 @@ export const DEFAULT_BUBBLE: BubbleStyle = {
   bevelSize: 0.15,
   roughness: 0.5,
   emojiScale: 1.3,
+  curveSegments: 8,
 };
 
 export const DEFAULT_PIN: PinStyle = {
@@ -48,6 +50,7 @@ export const DEFAULT_PIN: PinStyle = {
   roughness: 0.2,
   doubleSided: true,
   emojiScale: 1.4,
+  curveSegments: 8,
 };
 
 export const DEFAULT_BADGE: BadgeStyle = {
@@ -63,6 +66,7 @@ export const DEFAULT_BADGE: BadgeStyle = {
   roughness: 0.2,
   doubleSided: true,
   emojiScale: 1.35,
+  curveSegments: 8,
 };
 
 export const DEFAULT_FLAT: FlatStyle = {
@@ -71,6 +75,7 @@ export const DEFAULT_FLAT: FlatStyle = {
   emojiScale: 1.3,
   roughness: 0.3,
   metalness: 0.1,
+  curveSegments: 8,
 };
 
 export const EXPORT_FORMATS = [

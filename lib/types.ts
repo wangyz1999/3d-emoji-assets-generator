@@ -14,6 +14,7 @@ export interface CoinStyle {
   metalness: number;
   roughness: number;
   emojiScale: number;
+  curveSegments: number;
 }
 
 export interface BubbleStyle {
@@ -27,6 +28,7 @@ export interface BubbleStyle {
   bevelSize: number;
   roughness: number;
   emojiScale: number;
+  curveSegments: number;
 }
 
 export interface PinStyle {
@@ -41,6 +43,7 @@ export interface PinStyle {
   roughness: number;
   doubleSided: boolean;
   emojiScale: number;
+  curveSegments: number;
 }
 
 export interface BadgeStyle {
@@ -56,6 +59,7 @@ export interface BadgeStyle {
   roughness: number;
   doubleSided: boolean;
   emojiScale: number;
+  curveSegments: number;
 }
 
 export interface FlatStyle {
@@ -64,6 +68,7 @@ export interface FlatStyle {
   emojiScale: number;
   roughness: number;
   metalness: number;
+  curveSegments: number;
 }
 
 export type StyleConfig = CoinStyle | BubbleStyle | PinStyle | BadgeStyle | FlatStyle;

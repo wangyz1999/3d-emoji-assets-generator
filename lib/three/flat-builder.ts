@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { SVGLoader } from "three/addons/loaders/SVGLoader.js";
+import { mergeVertices } from "three/addons/utils/BufferGeometryUtils.js";
 import type { FlatStyle } from "../types";
 
 const LAYER_OFFSET = 0.003;
@@ -60,9 +61,15 @@ export async function buildFlat(
               bevelSegments: 3,
               bevelSize: 0.02 * layerDepth,
               bevelThickness: 0.02 * layerDepth,
+              curveSegments: config.curveSegments,
             };
 
-            const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+            let geometry: THREE.BufferGeometry = new THREE.ExtrudeGeometry(
+              shape,
+              extrudeSettings,
+            );
+            geometry = mergeVertices(geometry);
+            geometry.computeVertexNormals();
 
             geometry.translate(0, 0, -layerDepth / 2);
 

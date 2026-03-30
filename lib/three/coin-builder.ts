@@ -69,7 +69,8 @@ export async function buildCoin(
   const { group: emojiGroup, colors } = await loadEmojiSVG(
     svgUrl,
     config.radius * config.emojiScale,
-    colorOverrides
+    colorOverrides,
+    config.curveSegments,
   );
 
   const frontEmoji = emojiGroup;

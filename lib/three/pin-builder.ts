@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { mergeVertices } from "three/addons/utils/BufferGeometryUtils.js";
 import type { PinStyle } from "../types";
 import { loadEmojiSVG } from "./svg-loader";
 
@@ -39,7 +40,12 @@ export function buildPinBase(config: PinStyle): {
     bevelThickness: 0.12,
   };
 
-  const pinGeometry = new THREE.ExtrudeGeometry(pinShape, extrudeSettings);
+  let pinGeometry: THREE.BufferGeometry = new THREE.ExtrudeGeometry(
+    pinShape,
+    extrudeSettings,
+  );
+  pinGeometry = mergeVertices(pinGeometry);
+  pinGeometry.computeVertexNormals();
   pinGeometry.computeBoundingBox();
   const zOffset =
     -0.5 * (pinGeometry.boundingBox!.max.z + pinGeometry.boundingBox!.min.z);
@@ -91,7 +97,8 @@ export async function buildPin(
   const { group: emojiGroup, colors } = await loadEmojiSVG(
     svgUrl,
     config.innerRadius * config.emojiScale,
-    colorOverrides
+    colorOverrides,
+    config.curveSegments,
   );
 
   const clearance = 0.01;

@@ -26,6 +26,7 @@ function parseConfig(params: URLSearchParams): {
   const emoji = params.get("emoji") ?? "1f60a";
   const format = (params.get("format") ?? "glb") as ExportFormat;
   const mergeMaterials = params.get("mergeMaterials") === "true";
+  const curveSegments = parseInt(params.get("curveSegments") ?? "8") || 8;
 
   if (shape === "bubble") {
     const config: BubbleStyle = {
@@ -39,6 +40,7 @@ function parseConfig(params: URLSearchParams): {
       roughness: parseFloat(params.get("roughness") ?? String(DEFAULT_BUBBLE.roughness)),
       emojiScale: parseFloat(params.get("emojiScale") ?? String(DEFAULT_BUBBLE.emojiScale)),
       doubleSided: params.get("doubleSided") !== "false",
+      curveSegments,
     };
     return { config, emoji, format, mergeMaterials };
   }
@@ -56,6 +58,7 @@ function parseConfig(params: URLSearchParams): {
       roughness: parseFloat(params.get("roughness") ?? String(DEFAULT_PIN.roughness)),
       emojiScale: parseFloat(params.get("emojiScale") ?? String(DEFAULT_PIN.emojiScale)),
       doubleSided: params.get("doubleSided") !== "false",
+      curveSegments,
     };
     return { config, emoji, format, mergeMaterials };
   }
@@ -74,6 +77,7 @@ function parseConfig(params: URLSearchParams): {
       roughness: parseFloat(params.get("roughness") ?? String(DEFAULT_BADGE.roughness)),
       emojiScale: parseFloat(params.get("emojiScale") ?? String(DEFAULT_BADGE.emojiScale)),
       doubleSided: params.get("doubleSided") !== "false",
+      curveSegments,
     };
     return { config, emoji, format, mergeMaterials };
   }
@@ -85,6 +89,7 @@ function parseConfig(params: URLSearchParams): {
       emojiScale: parseFloat(params.get("emojiScale") ?? String(DEFAULT_FLAT.emojiScale)),
       roughness: parseFloat(params.get("roughness") ?? String(DEFAULT_FLAT.roughness)),
       metalness: parseFloat(params.get("metalness") ?? String(DEFAULT_FLAT.metalness)),
+      curveSegments,
     };
     return { config, emoji, format, mergeMaterials };
   }
@@ -101,6 +106,7 @@ function parseConfig(params: URLSearchParams): {
     roughness: parseFloat(params.get("roughness") ?? String(DEFAULT_COIN.roughness)),
     emojiScale: parseFloat(params.get("emojiScale") ?? String(DEFAULT_COIN.emojiScale)),
     doubleSided: params.get("doubleSided") !== "false",
+    curveSegments,
   };
   return { config, emoji, format, mergeMaterials };
 }

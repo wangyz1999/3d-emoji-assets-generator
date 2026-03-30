@@ -1,4 +1,8 @@
 import * as THREE from "three";
+import {
+  mergeGeometries,
+  mergeVertices,
+} from "three/addons/utils/BufferGeometryUtils.js";
 
 interface PaletteEntry {
   color: THREE.Color;
@@ -107,7 +111,48 @@ export function mergeToSingleMaterial(root: THREE.Group): THREE.Group {
     mesh.material = shared;
   });
 
-  return clone;
+  const merged = mergeGroupGeometries(clone, shared);
+  return merged;
+}
+
+/**
+ * Collapse every Mesh inside a group hierarchy into a single Mesh.
+ * Each child geometry is baked into world-space first so the result
+ * is a single draw-call-friendly object.
+ */
+function mergeGroupGeometries(
+  root: THREE.Group,
+  material: THREE.Material,
+): THREE.Group {
+  const geometries: THREE.BufferGeometry[] = [];
+
+  root.updateWorldMatrix(true, true);
+
+  root.traverse((child) => {
+    if (!(child instanceof THREE.Mesh)) return;
+    const mesh = child as THREE.Mesh;
+    const geo = mesh.geometry.clone();
+    geo.applyMatrix4(mesh.matrixWorld);
+    geometries.push(geo);
+  });
+
+  if (geometries.length === 0) return root;
+
+  let merged = mergeGeometries(geometries, false);
+  if (!merged) return root;
+
+  merged = mergeVertices(merged);
+  merged.computeVertexNormals();
+
+  geometries.forEach((g) => g.dispose());
+
+  const result = new THREE.Group();
+  result.name = root.name;
+  const mesh = new THREE.Mesh(merged, material);
+  mesh.castShadow = true;
+  mesh.receiveShadow = true;
+  result.add(mesh);
+  return result;
 }
 
 function deepCloneGroup(root: THREE.Group): THREE.Group {

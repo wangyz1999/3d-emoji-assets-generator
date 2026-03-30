@@ -237,6 +237,14 @@ function CoinControls({ config }: { config: CoinStyle }) {
         step={0.05}
         onChange={(v) => update({ emojiScale: v })}
       />
+      <Slider
+        label="Curve Detail"
+        value={config.curveSegments}
+        min={1}
+        max={24}
+        step={1}
+        onChange={(v) => update({ curveSegments: v })}
+      />
       <Toggle
         label="Double Sided"
         checked={config.doubleSided}
@@ -313,6 +321,14 @@ function BubbleControls({ config }: { config: BubbleStyle }) {
         max={2}
         step={0.05}
         onChange={(v) => update({ emojiScale: v })}
+      />
+      <Slider
+        label="Curve Detail"
+        value={config.curveSegments}
+        min={1}
+        max={24}
+        step={1}
+        onChange={(v) => update({ curveSegments: v })}
       />
       <Toggle
         label="Double Sided"
@@ -395,6 +411,14 @@ function PinControls({ config }: { config: PinStyle }) {
         max={2}
         step={0.05}
         onChange={(v) => update({ emojiScale: v })}
+      />
+      <Slider
+        label="Curve Detail"
+        value={config.curveSegments}
+        min={1}
+        max={24}
+        step={1}
+        onChange={(v) => update({ curveSegments: v })}
       />
       <Toggle
         label="Double Sided"
@@ -486,6 +510,14 @@ function BadgeControls({ config }: { config: BadgeStyle }) {
         step={0.05}
         onChange={(v) => update({ emojiScale: v })}
       />
+      <Slider
+        label="Curve Detail"
+        value={config.curveSegments}
+        min={1}
+        max={24}
+        step={1}
+        onChange={(v) => update({ curveSegments: v })}
+      />
       <Toggle
         label="Double Sided"
         checked={config.doubleSided}
@@ -533,6 +565,14 @@ function FlatControls({ config }: { config: FlatStyle }) {
         max={2}
         step={0.05}
         onChange={(v) => update({ emojiScale: v })}
+      />
+      <Slider
+        label="Curve Detail"
+        value={config.curveSegments}
+        min={1}
+        max={24}
+        step={1}
+        onChange={(v) => update({ curveSegments: v })}
       />
     </div>
   );

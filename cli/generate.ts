@@ -119,6 +119,8 @@ function buildQueryParams(config: StyleConfig, emoji: string, format: ExportForm
   params.set("emojiSource", emojiSource);
   if (mergeMaterials) params.set("mergeMaterials", "true");
 
+  params.set("curveSegments", String(config.curveSegments));
+
   if (config.shape === "coin") {
     params.set("radius", String(config.radius));
     params.set("thickness", String(config.thickness));

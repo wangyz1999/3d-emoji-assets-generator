@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { mergeVertices } from "three/addons/utils/BufferGeometryUtils.js";
 import type { BadgeStyle } from "../types";
 import { loadEmojiSVG } from "./svg-loader";
 
@@ -64,10 +65,12 @@ export function buildBadgeBase(config: BadgeStyle): {
     bevelThickness: 0.05,
   };
 
-  const frameGeometry = new THREE.ExtrudeGeometry(
+  let frameGeometry: THREE.BufferGeometry = new THREE.ExtrudeGeometry(
     frameShape,
-    frameExtrudeSettings
+    frameExtrudeSettings,
   );
+  frameGeometry = mergeVertices(frameGeometry);
+  frameGeometry.computeVertexNormals();
   frameGeometry.computeBoundingBox();
   const zOffsetFrame =
     -0.5 *
@@ -91,10 +94,12 @@ export function buildBadgeBase(config: BadgeStyle): {
     depth: innerDepth,
     bevelEnabled: false,
   };
-  const innerGeometry = new THREE.ExtrudeGeometry(
+  let innerGeometry: THREE.BufferGeometry = new THREE.ExtrudeGeometry(
     innerShape,
-    innerExtrudeSettings
+    innerExtrudeSettings,
   );
+  innerGeometry = mergeVertices(innerGeometry);
+  innerGeometry.computeVertexNormals();
   innerGeometry.computeBoundingBox();
   const zOffsetInner =
     -0.5 *
@@ -126,7 +131,8 @@ export async function buildBadge(
   const { group: emojiGroup, colors } = await loadEmojiSVG(
     svgUrl,
     config.innerRadius * config.emojiScale,
-    colorOverrides
+    colorOverrides,
+    config.curveSegments,
   );
 
   const clearance = 0.01;

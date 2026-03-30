@@ -20,6 +20,7 @@ All examples use the `npm run generate --` shorthand. This is equivalent to runn
 | `--base-url` | no | `http://localhost:3000` | Dev server URL |
 | `--concurrency` | no | `4` | Number of emojis rendered in parallel (see [Concurrency](#concurrency)) |
 | `--emoji-source` | no | `local` | SVG source: `local` (`data/svg/`) or `remote` (jsDelivr CDN) — see [Local SVGs](#local-svgs) |
+| `--curve-segments` | no | `8` | Curve subdivision level (1–24). Lower values produce a low-poly look; higher values are smoother |
 | `--merge-materials` | no | off | Bake all colors into a single texture atlas — see [Merge Materials](#merge-materials) |
 
 ---

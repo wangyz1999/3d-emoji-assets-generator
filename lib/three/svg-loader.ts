@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { SVGLoader } from "three/addons/loaders/SVGLoader.js";
+import { mergeVertices } from "three/addons/utils/BufferGeometryUtils.js";
 
 const LAYER_OFFSET = 0.003;
 const EMOJI_DEPTH = 0.05;
@@ -12,7 +13,8 @@ export interface EmojiSVGResult {
 export async function loadEmojiSVG(
   url: string,
   targetSize: number,
-  colorOverrides?: Record<number, string>
+  colorOverrides?: Record<number, string>,
+  curveSegments: number = 8,
 ): Promise<EmojiSVGResult> {
   return new Promise((resolve, reject) => {
     const loader = new SVGLoader();
@@ -27,6 +29,7 @@ export async function loadEmojiSVG(
         const extrudeSettings: THREE.ExtrudeGeometryOptions = {
           depth: EMOJI_DEPTH,
           bevelEnabled: false,
+          curveSegments,
         };
 
         let globalShapeIndex = 0;
@@ -51,7 +54,12 @@ export async function loadEmojiSVG(
           });
 
           for (const shape of shapes) {
-            const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+            let geometry: THREE.BufferGeometry = new THREE.ExtrudeGeometry(
+              shape,
+              extrudeSettings,
+            );
+            geometry = mergeVertices(geometry);
+            geometry.computeVertexNormals();
             const mesh = new THREE.Mesh(geometry, pathMaterial);
             mesh.position.z = globalShapeIndex * LAYER_OFFSET;
             globalShapeIndex++;

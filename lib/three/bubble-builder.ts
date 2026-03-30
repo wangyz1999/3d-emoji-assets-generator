@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { mergeVertices } from "three/addons/utils/BufferGeometryUtils.js";
 import type { BubbleStyle } from "../types";
 import { loadEmojiSVG } from "./svg-loader";
 
@@ -37,7 +38,12 @@ export function buildBubbleBase(config: BubbleStyle): {
     bevelThickness: config.bevelSize,
   };
 
-  const geometry = new THREE.ExtrudeGeometry(bubbleShape, extrudeSettings);
+  let geometry: THREE.BufferGeometry = new THREE.ExtrudeGeometry(
+    bubbleShape,
+    extrudeSettings,
+  );
+  geometry = mergeVertices(geometry);
+  geometry.computeVertexNormals();
   geometry.computeBoundingBox();
 
   const zOffset =
@@ -69,7 +75,8 @@ export async function buildBubble(
   const { group: emojiGroup, colors } = await loadEmojiSVG(
     svgUrl,
     config.radius * config.emojiScale,
-    colorOverrides
+    colorOverrides,
+    config.curveSegments,
   );
 
   const frontEmoji = emojiGroup;

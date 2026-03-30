@@ -52,6 +52,7 @@ program
   .option("--badge-radius <n>", "Badge outer radius", String(DEFAULT_BADGE.badgeRadius))
   .option("--frame-color <hex>", "Badge frame color", DEFAULT_BADGE.frameColor)
   .option("--emissive-intensity <n>", "Badge glow intensity", String(DEFAULT_BADGE.emissiveIntensity))
+  .option("--curve-segments <n>", "Curve subdivision level (1-24, lower = low-poly)", "8")
   .option("--merge-materials", "Bake all colors into one texture atlas (single material)")
   .action(async (opts) => {
     const shape = opts.shape as StyleConfig["shape"];
@@ -66,6 +67,8 @@ program
 
     let config: StyleConfig;
 
+    const curveSegments = Math.max(1, Math.min(24, parseInt(opts.curveSegments, 10) || 8));
+
     if (shape === "coin") {
       config = {
         shape: "coin",
@@ -79,6 +82,7 @@ program
         roughness: parseFloat(opts.roughness),
         emojiScale: parseFloat(opts.emojiScale),
         doubleSided: !opts.singleSided,
+        curveSegments,
       };
     } else if (shape === "bubble") {
       config = {
@@ -92,6 +96,7 @@ program
         roughness: parseFloat(opts.roughness),
         emojiScale: parseFloat(opts.emojiScale),
         doubleSided: !opts.singleSided,
+        curveSegments,
       };
     } else if (shape === "pin") {
       config = {
@@ -106,6 +111,7 @@ program
         roughness: parseFloat(opts.roughness),
         emojiScale: parseFloat(opts.emojiScale),
         doubleSided: !opts.singleSided,
+        curveSegments,
       };
     } else if (shape === "badge") {
       config = {
@@ -121,6 +127,7 @@ program
         roughness: parseFloat(opts.roughness),
         emojiScale: parseFloat(opts.emojiScale),
         doubleSided: !opts.singleSided,
+        curveSegments,
       };
     } else {
       config = {
@@ -129,6 +136,7 @@ program
         emojiScale: parseFloat(opts.emojiScale),
         roughness: parseFloat(opts.roughness),
         metalness: parseFloat(opts.metalness),
+        curveSegments,
       };
     }
 
