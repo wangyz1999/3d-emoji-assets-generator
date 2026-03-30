@@ -5,18 +5,15 @@
 [![License: CC BY 4.0](https://img.shields.io/badge/Graphics-CC%20BY%204.0-lightgrey?style=flat-square)](LICENSE-GRAPHICS)
 [![Twemoji](https://img.shields.io/badge/Emoji-Twemoji-blue?style=flat-square)](https://github.com/jdecked/twemoji)
 
-<p align="center">
-  <img src="app/social.png" alt="3D Emoji Generator Social Preview" width="800" />
-</p>
+
+![Preview](app/twitter-image.png)
 
 Generate customizable 3D emoji assets from [Twemoji](https://github.com/jdecked/twemoji) SVGs. Choose from multiple shape presets (coins, speech bubbles), tweak every parameter, preview in real-time, and export as GLB, OBJ, STL, or USDZ — all in your browser. Includes a CLI for batch generation.
 
 [![Visit the Live App HERE](https://img.shields.io/badge/🚀_Visit_The_Live_App_Here->>>_emoji3d.org_<<<-red?style=for-the-badge)](https://emoji3d.org)
 
 
-<p align="center">
-  <img src="app/app_screenshot.png" alt="3D Emoji Generator Social Preview" width="800" />
-</p>
+![Screenshot of 3D Emoji Generator](app/app_screenshot.png)
 
 ### 1000 Rotating Emojis in Unreal
 
