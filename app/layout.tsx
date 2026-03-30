@@ -54,6 +54,14 @@ export const metadata: Metadata = {
     description:
       "Create and export customizable 3D emoji assets (GLB, OBJ, STL, USDZ) for games, AR, and 3D projects. Free, browser-based, no sign-up required.",
     locale: "en_US",
+    images: [
+      {
+        url: "/social.png",
+        width: 1280,
+        height: 640,
+        alt: "3D Emoji Generator — Free 3D Emoji Assets",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
@@ -61,6 +69,7 @@ export const metadata: Metadata = {
     description:
       "Create and export customizable 3D emoji assets (GLB, OBJ, STL, USDZ) for games, AR, and 3D projects. Free, browser-based, no sign-up required.",
     creator: "@wangyz1999",
+    images: ["/social.png"],
   },
   robots: {
     index: true,
