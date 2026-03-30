@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { useAppStore } from "@/lib/store";
-import { DEFAULT_COIN, DEFAULT_BUBBLE, DEFAULT_PIN, DEFAULT_BADGE } from "@/lib/constants";
-import type { StyleConfig, CoinStyle, BubbleStyle, PinStyle, BadgeStyle } from "@/lib/types";
+import { DEFAULT_COIN, DEFAULT_BUBBLE, DEFAULT_PIN, DEFAULT_BADGE, DEFAULT_FLAT } from "@/lib/constants";
+import type { StyleConfig, CoinStyle, BubbleStyle, PinStyle, BadgeStyle, FlatStyle } from "@/lib/types";
 
 function useIsMobile() {
   const [isMobile, setIsMobile] = useState(false);
@@ -126,6 +126,7 @@ function Toggle({
 }
 
 const SHAPE_OPTIONS = [
+  { id: "flat", label: "Flat", defaults: DEFAULT_FLAT },
   { id: "bubble", label: "Bubble", defaults: DEFAULT_BUBBLE },
   { id: "pin", label: "Pin", defaults: DEFAULT_PIN },
   { id: "coin", label: "Coin", defaults: DEFAULT_COIN },
@@ -494,6 +495,49 @@ function BadgeControls({ config }: { config: BadgeStyle }) {
   );
 }
 
+function FlatControls({ config }: { config: FlatStyle }) {
+  const { updateStyleConfig } = useAppStore();
+  const update = (partial: Partial<FlatStyle>) =>
+    updateStyleConfig(partial as Partial<StyleConfig>);
+
+  return (
+    <div className="flex flex-col gap-2">
+      <Slider
+        label="Depth"
+        value={config.depth}
+        min={0.2}
+        max={10}
+        step={0.1}
+        onChange={(v) => update({ depth: v })}
+      />
+      <Slider
+        label="Metalness"
+        value={config.metalness}
+        min={0}
+        max={1}
+        step={0.05}
+        onChange={(v) => update({ metalness: v })}
+      />
+      <Slider
+        label="Roughness"
+        value={config.roughness}
+        min={0}
+        max={1}
+        step={0.05}
+        onChange={(v) => update({ roughness: v })}
+      />
+      <Slider
+        label="Emoji Scale"
+        value={config.emojiScale}
+        min={0.5}
+        max={2}
+        step={0.05}
+        onChange={(v) => update({ emojiScale: v })}
+      />
+    </div>
+  );
+}
+
 function ShapeControls() {
   const { styleConfig } = useAppStore();
 
@@ -506,6 +550,8 @@ function ShapeControls() {
       return <PinControls config={styleConfig} />;
     case "badge":
       return <BadgeControls config={styleConfig} />;
+    case "flat":
+      return <FlatControls config={styleConfig} />;
   }
 }
 

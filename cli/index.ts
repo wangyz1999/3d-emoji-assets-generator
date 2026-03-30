@@ -2,8 +2,8 @@
 
 import { Command } from "commander";
 import { generate, type EmojiSource } from "./generate";
-import { DEFAULT_COIN, DEFAULT_BUBBLE, DEFAULT_PIN, DEFAULT_BADGE } from "../lib/constants";
-import type { CoinStyle, BubbleStyle, PinStyle, BadgeStyle, ExportFormat, FileNaming, StyleConfig } from "../lib/types";
+import { DEFAULT_COIN, DEFAULT_BUBBLE, DEFAULT_PIN, DEFAULT_BADGE, DEFAULT_FLAT } from "../lib/constants";
+import type { CoinStyle, BubbleStyle, PinStyle, BadgeStyle, FlatStyle, ExportFormat, FileNaming, StyleConfig } from "../lib/types";
 
 const program = new Command();
 
@@ -15,7 +15,7 @@ program
 program
   .command("generate")
   .description("Generate 3D emoji model(s)")
-  .requiredOption("--shape <type>", "Shape type: coin, bubble, pin, or badge", "coin")
+  .requiredOption("--shape <type>", "Shape type: coin, bubble, pin, badge, or flat", "coin")
   .requiredOption("--format <format>", "Export format: glb, obj, stl, usdz", "glb")
   .requiredOption("--output <dir>", "Output directory", "./output")
   .requiredOption("--emojis <codes>", "Comma-separated emoji codes or 'all'", "all")
@@ -105,7 +105,7 @@ program
         emojiScale: parseFloat(opts.emojiScale),
         doubleSided: !opts.singleSided,
       };
-    } else {
+    } else if (shape === "badge") {
       config = {
         shape: "badge",
         sides: parseInt(opts.sides),
@@ -119,6 +119,14 @@ program
         roughness: parseFloat(opts.roughness),
         emojiScale: parseFloat(opts.emojiScale),
         doubleSided: !opts.singleSided,
+      };
+    } else {
+      config = {
+        shape: "flat",
+        depth: parseFloat(opts.depth || String(DEFAULT_FLAT.depth)),
+        emojiScale: parseFloat(opts.emojiScale),
+        roughness: parseFloat(opts.roughness),
+        metalness: parseFloat(opts.metalness),
       };
     }
 

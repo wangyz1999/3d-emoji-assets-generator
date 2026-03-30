@@ -62,6 +62,11 @@ export default function CommandPreview() {
       parts.push(`--roughness ${styleConfig.roughness}`);
       parts.push(`--emoji-scale ${styleConfig.emojiScale}`);
       if (!styleConfig.doubleSided) parts.push("--single-sided");
+    } else if (styleConfig.shape === "flat") {
+      parts.push(`--depth ${styleConfig.depth}`);
+      parts.push(`--metalness ${styleConfig.metalness}`);
+      parts.push(`--roughness ${styleConfig.roughness}`);
+      parts.push(`--emoji-scale ${styleConfig.emojiScale}`);
     }
 
     return parts;

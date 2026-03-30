@@ -7,15 +7,16 @@ import { buildCoin } from "@/lib/three/coin-builder";
 import { buildBubble } from "@/lib/three/bubble-builder";
 import { buildPin } from "@/lib/three/pin-builder";
 import { buildBadge } from "@/lib/three/badge-builder";
-import type { CoinStyle, BubbleStyle, PinStyle, BadgeStyle, ExportFormat } from "@/lib/types";
-import { DEFAULT_COIN, DEFAULT_BUBBLE, DEFAULT_PIN, DEFAULT_BADGE, TWEMOJI_BASE_URL, LOCAL_SVG_BASE_URL } from "@/lib/constants";
+import { buildFlat } from "@/lib/three/flat-builder";
+import type { CoinStyle, BubbleStyle, PinStyle, BadgeStyle, FlatStyle, ExportFormat } from "@/lib/types";
+import { DEFAULT_COIN, DEFAULT_BUBBLE, DEFAULT_PIN, DEFAULT_BADGE, DEFAULT_FLAT, TWEMOJI_BASE_URL, LOCAL_SVG_BASE_URL } from "@/lib/constants";
 import { GLTFExporter } from "three/addons/exporters/GLTFExporter.js";
 import { OBJExporter } from "three/addons/exporters/OBJExporter.js";
 import { STLExporter } from "three/addons/exporters/STLExporter.js";
 import { USDZExporter } from "three/addons/exporters/USDZExporter.js";
 
 function parseConfig(params: URLSearchParams): {
-  config: CoinStyle | BubbleStyle | PinStyle | BadgeStyle;
+  config: CoinStyle | BubbleStyle | PinStyle | BadgeStyle | FlatStyle;
   emoji: string;
   format: ExportFormat;
 } {
@@ -70,6 +71,17 @@ function parseConfig(params: URLSearchParams): {
       roughness: parseFloat(params.get("roughness") ?? String(DEFAULT_BADGE.roughness)),
       emojiScale: parseFloat(params.get("emojiScale") ?? String(DEFAULT_BADGE.emojiScale)),
       doubleSided: params.get("doubleSided") !== "false",
+    };
+    return { config, emoji, format };
+  }
+
+  if (shape === "flat") {
+    const config: FlatStyle = {
+      ...DEFAULT_FLAT,
+      depth: parseFloat(params.get("depth") ?? String(DEFAULT_FLAT.depth)),
+      emojiScale: parseFloat(params.get("emojiScale") ?? String(DEFAULT_FLAT.emojiScale)),
+      roughness: parseFloat(params.get("roughness") ?? String(DEFAULT_FLAT.roughness)),
+      metalness: parseFloat(params.get("metalness") ?? String(DEFAULT_FLAT.metalness)),
     };
     return { config, emoji, format };
   }
@@ -149,8 +161,10 @@ function CLIRenderContent() {
         model = await buildBubble(config as BubbleStyle, svgUrl);
       } else if (config.shape === "pin") {
         model = await buildPin(config as PinStyle, svgUrl);
-      } else {
+      } else if (config.shape === "badge") {
         model = await buildBadge(config as BadgeStyle, svgUrl);
+      } else {
+        model = await buildFlat(config as FlatStyle, svgUrl);
       }
 
       const { buffer, ext } = await exportToBuffer(model, format);

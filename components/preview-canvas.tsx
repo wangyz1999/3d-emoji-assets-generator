@@ -9,6 +9,7 @@ import { buildCoin } from "@/lib/three/coin-builder";
 import { buildBubble } from "@/lib/three/bubble-builder";
 import { buildPin } from "@/lib/three/pin-builder";
 import { buildBadge } from "@/lib/three/badge-builder";
+import { buildFlat } from "@/lib/three/flat-builder";
 import { Pause, Play, RefreshCw, Grid3x3, SunDim, Layers } from "lucide-react";
 
 type EnvTheme = "dark" | "neon" | "sky" | "stars" | "fog";
@@ -107,8 +108,10 @@ function SceneContent({
         model = await buildBubble(styleConfig, selectedEmoji.url);
       } else if (styleConfig.shape === "pin") {
         model = await buildPin(styleConfig, selectedEmoji.url);
-      } else {
+      } else if (styleConfig.shape === "badge") {
         model = await buildBadge(styleConfig, selectedEmoji.url);
+      } else {
+        model = await buildFlat(styleConfig, selectedEmoji.url);
       }
 
       applyWireframe(model, wireframeRef.current);

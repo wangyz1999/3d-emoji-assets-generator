@@ -1,4 +1,4 @@
-import type { CoinStyle, BubbleStyle, PinStyle, BadgeStyle } from "./types";
+import type { CoinStyle, BubbleStyle, PinStyle, BadgeStyle, FlatStyle } from "./types";
 
 export const TWEMOJI_VERSION = "17.0.2";
 export const TWEMOJI_BASE_URL = `https://cdn.jsdelivr.net/gh/jdecked/twemoji@${TWEMOJI_VERSION}/assets/svg`;
@@ -63,6 +63,14 @@ export const DEFAULT_BADGE: BadgeStyle = {
   roughness: 0.2,
   doubleSided: true,
   emojiScale: 1.35,
+};
+
+export const DEFAULT_FLAT: FlatStyle = {
+  shape: "flat",
+  depth: 2,
+  emojiScale: 1.3,
+  roughness: 0.3,
+  metalness: 0.1,
 };
 
 export const EXPORT_FORMATS = [

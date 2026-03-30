@@ -161,6 +161,11 @@ function buildQueryParams(config: StyleConfig, emoji: string, format: ExportForm
     params.set("roughness", String(config.roughness));
     params.set("emojiScale", String(config.emojiScale));
     params.set("doubleSided", String(config.doubleSided));
+  } else if (config.shape === "flat") {
+    params.set("depth", String(config.depth));
+    params.set("emojiScale", String(config.emojiScale));
+    params.set("roughness", String(config.roughness));
+    params.set("metalness", String(config.metalness));
   }
 
   return params.toString();

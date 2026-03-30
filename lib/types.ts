@@ -1,4 +1,4 @@
-export type ShapeType = "coin" | "bubble" | "pin" | "badge";
+export type ShapeType = "coin" | "bubble" | "pin" | "badge" | "flat";
 
 export type ExportFormat = "glb" | "obj" | "stl" | "usdz";
 
@@ -58,7 +58,15 @@ export interface BadgeStyle {
   emojiScale: number;
 }
 
-export type StyleConfig = CoinStyle | BubbleStyle | PinStyle | BadgeStyle;
+export interface FlatStyle {
+  shape: "flat";
+  depth: number;
+  emojiScale: number;
+  roughness: number;
+  metalness: number;
+}
+
+export type StyleConfig = CoinStyle | BubbleStyle | PinStyle | BadgeStyle | FlatStyle;
 
 export type FileNaming = "unicode" | "shortname";
 
