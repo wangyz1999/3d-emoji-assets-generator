@@ -200,6 +200,17 @@ export default function PreviewCanvas() {
   return (
     <div className="relative h-full w-full">
       <Canvas
+        fallback={
+          <div className="flex h-full w-full flex-col items-center justify-center gap-3 bg-zinc-900 text-center text-sm text-zinc-400">
+            <span className="text-2xl">⚠️</span>
+            <p className="font-medium text-zinc-200">WebGL is not available</p>
+            <p className="max-w-xs text-xs leading-relaxed">
+              Your browser or device does not support WebGL, which is required
+              for the 3D preview. Try enabling hardware acceleration in your
+              browser settings, or use Chrome/Edge/Safari.
+            </p>
+          </div>
+        }
         camera={{ position: [0, 5, 8], fov: 45 }}
         shadows
         dpr={[1, 2]}
