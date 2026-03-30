@@ -11,6 +11,8 @@ interface AppState {
   emojiListLoading: boolean;
   isExporting: boolean;
   selectedCategory: string;
+  emojiColors: string[];
+  colorOverrides: Record<number, string>;
 
   setSelectedEmoji: (emoji: EmojiEntry) => void;
   setStyleConfig: (config: StyleConfig) => void;
@@ -21,6 +23,9 @@ interface AppState {
   setEmojiListLoading: (loading: boolean) => void;
   setIsExporting: (exporting: boolean) => void;
   setSelectedCategory: (category: string) => void;
+  setEmojiColors: (colors: string[]) => void;
+  setColorOverride: (index: number, color: string) => void;
+  resetColorOverrides: () => void;
 }
 
 export const useAppStore = create<AppState>((set) => ({
@@ -32,8 +37,10 @@ export const useAppStore = create<AppState>((set) => ({
   emojiListLoading: true,
   isExporting: false,
   selectedCategory: "",
+  emojiColors: [],
+  colorOverrides: {},
 
-  setSelectedEmoji: (emoji) => set({ selectedEmoji: emoji }),
+  setSelectedEmoji: (emoji) => set({ selectedEmoji: emoji, colorOverrides: {} }),
   setStyleConfig: (config) => set({ styleConfig: config }),
   updateStyleConfig: (partial) =>
     set((state) => ({
@@ -45,4 +52,10 @@ export const useAppStore = create<AppState>((set) => ({
   setEmojiListLoading: (loading) => set({ emojiListLoading: loading }),
   setIsExporting: (exporting) => set({ isExporting: exporting }),
   setSelectedCategory: (category) => set({ selectedCategory: category }),
+  setEmojiColors: (colors) => set({ emojiColors: colors }),
+  setColorOverride: (index, color) =>
+    set((state) => ({
+      colorOverrides: { ...state.colorOverrides, [index]: color },
+    })),
+  resetColorOverrides: () => set({ colorOverrides: {} }),
 }));

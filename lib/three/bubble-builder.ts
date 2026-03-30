@@ -54,15 +54,22 @@ export function buildBubbleBase(config: BubbleStyle): {
   return { group, maxZ: geometry.boundingBox!.max.z };
 }
 
+export interface BubbleBuildResult {
+  group: THREE.Group;
+  colors: string[];
+}
+
 export async function buildBubble(
   config: BubbleStyle,
-  svgUrl: string
-): Promise<THREE.Group> {
+  svgUrl: string,
+  colorOverrides?: Record<number, string>
+): Promise<BubbleBuildResult> {
   const { group, maxZ } = buildBubbleBase(config);
 
-  const emojiGroup = await loadEmojiSVG(
+  const { group: emojiGroup, colors } = await loadEmojiSVG(
     svgUrl,
-    config.radius * config.emojiScale
+    config.radius * config.emojiScale,
+    colorOverrides
   );
 
   const frontEmoji = emojiGroup;
@@ -78,5 +85,5 @@ export async function buildBubble(
     group.add(backEmoji);
   }
 
-  return group;
+  return { group, colors };
 }

@@ -54,15 +54,22 @@ export function buildCoinBase(config: CoinStyle): THREE.Group {
   return group;
 }
 
+export interface CoinBuildResult {
+  group: THREE.Group;
+  colors: string[];
+}
+
 export async function buildCoin(
   config: CoinStyle,
-  svgUrl: string
-): Promise<THREE.Group> {
+  svgUrl: string,
+  colorOverrides?: Record<number, string>
+): Promise<CoinBuildResult> {
   const group = buildCoinBase(config);
 
-  const emojiGroup = await loadEmojiSVG(
+  const { group: emojiGroup, colors } = await loadEmojiSVG(
     svgUrl,
-    config.radius * config.emojiScale
+    config.radius * config.emojiScale,
+    colorOverrides
   );
 
   const frontEmoji = emojiGroup;
@@ -76,5 +83,5 @@ export async function buildCoin(
     group.add(backEmoji);
   }
 
-  return group;
+  return { group, colors };
 }

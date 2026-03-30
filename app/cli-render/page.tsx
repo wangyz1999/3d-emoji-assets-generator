@@ -156,15 +156,15 @@ function CLIRenderContent() {
 
       let model: THREE.Group;
       if (config.shape === "coin") {
-        model = await buildCoin(config as CoinStyle, svgUrl);
+        ({ group: model } = await buildCoin(config as CoinStyle, svgUrl));
       } else if (config.shape === "bubble") {
-        model = await buildBubble(config as BubbleStyle, svgUrl);
+        ({ group: model } = await buildBubble(config as BubbleStyle, svgUrl));
       } else if (config.shape === "pin") {
-        model = await buildPin(config as PinStyle, svgUrl);
+        ({ group: model } = await buildPin(config as PinStyle, svgUrl));
       } else if (config.shape === "badge") {
-        model = await buildBadge(config as BadgeStyle, svgUrl);
+        ({ group: model } = await buildBadge(config as BadgeStyle, svgUrl));
       } else {
-        model = await buildFlat(config as FlatStyle, svgUrl);
+        ({ group: model } = await buildFlat(config as FlatStyle, svgUrl));
       }
 
       const { buffer, ext } = await exportToBuffer(model, format);

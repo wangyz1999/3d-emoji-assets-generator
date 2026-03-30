@@ -111,15 +111,22 @@ export function buildBadgeBase(config: BadgeStyle): {
   return { group, faceZ };
 }
 
+export interface BadgeBuildResult {
+  group: THREE.Group;
+  colors: string[];
+}
+
 export async function buildBadge(
   config: BadgeStyle,
-  svgUrl: string
-): Promise<THREE.Group> {
+  svgUrl: string,
+  colorOverrides?: Record<number, string>
+): Promise<BadgeBuildResult> {
   const { group, faceZ } = buildBadgeBase(config);
 
-  const emojiGroup = await loadEmojiSVG(
+  const { group: emojiGroup, colors } = await loadEmojiSVG(
     svgUrl,
-    config.innerRadius * config.emojiScale
+    config.innerRadius * config.emojiScale,
+    colorOverrides
   );
 
   const clearance = 0.01;
@@ -135,5 +142,5 @@ export async function buildBadge(
     group.add(backEmoji);
   }
 
-  return group;
+  return { group, colors };
 }

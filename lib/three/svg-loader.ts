@@ -4,10 +4,16 @@ import { SVGLoader } from "three/addons/loaders/SVGLoader.js";
 const LAYER_OFFSET = 0.003;
 const EMOJI_DEPTH = 0.05;
 
+export interface EmojiSVGResult {
+  group: THREE.Group;
+  colors: string[];
+}
+
 export async function loadEmojiSVG(
   url: string,
-  targetSize: number
-): Promise<THREE.Group> {
+  targetSize: number,
+  colorOverrides?: Record<number, string>
+): Promise<EmojiSVGResult> {
   return new Promise((resolve, reject) => {
     const loader = new SVGLoader();
 
@@ -16,6 +22,7 @@ export async function loadEmojiSVG(
       (data) => {
         const paths = data.paths;
         const emojiGroup = new THREE.Group();
+        const originalColors: string[] = [];
 
         const extrudeSettings: THREE.ExtrudeGeometryOptions = {
           depth: EMOJI_DEPTH,
@@ -24,11 +31,19 @@ export async function loadEmojiSVG(
 
         let globalShapeIndex = 0;
 
-        for (const path of paths) {
+        for (let pathIdx = 0; pathIdx < paths.length; pathIdx++) {
+          const path = paths[pathIdx];
           const shapes = SVGLoader.createShapes(path);
+          const originalHex = "#" + path.color.getHexString();
+          originalColors.push(originalHex);
+
+          const useColor = colorOverrides?.[pathIdx]
+            ? new THREE.Color(colorOverrides[pathIdx])
+            : path.color;
+
           const pathMaterial = new THREE.MeshStandardMaterial({
-            color: path.color,
-            emissive: path.color,
+            color: useColor,
+            emissive: useColor,
             emissiveIntensity: 0.2,
             roughness: 0.3,
             metalness: 0.1,
@@ -64,7 +79,7 @@ export async function loadEmojiSVG(
         // Lock Z-scale to 1 so micro-offsets stay at full precision
         emojiGroup.scale.set(scale, -scale, 1);
 
-        resolve(emojiGroup);
+        resolve({ group: emojiGroup, colors: originalColors });
       },
       undefined,
       reject
