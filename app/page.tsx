@@ -23,7 +23,7 @@ export default function Home() {
   return (
     <div className="flex h-screen flex-col bg-zinc-950 text-white lg:flex-row">
       {/* Left Panel - Controls */}
-      <aside className="flex w-full flex-col border-b border-zinc-800 lg:w-[480px] lg:border-b-0 lg:border-r">
+      <aside className="flex w-full shrink-0 flex-col border-b border-zinc-800 max-h-[50vh] lg:max-h-none lg:w-[480px] lg:shrink lg:min-w-[320px] lg:border-b-0 lg:border-r">
         <div className="border-b border-zinc-800 px-5 py-4 flex items-center justify-between">
           <h1 className="text-lg font-bold tracking-tight">
             <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
@@ -89,7 +89,7 @@ export default function Home() {
       </aside>
 
       {/* Right Panel - 3D Preview */}
-      <main className="relative min-h-[400px] flex-1">
+      <main className="relative flex-1 min-h-[50vh] lg:min-h-0 lg:min-w-[300px]">
         <PreviewCanvas />
         <p className="attribution-canvas absolute bottom-2 left-0 right-0 text-center text-xs text-zinc-500">
           Emoji graphics by{" "}
