@@ -4,11 +4,12 @@
 [![License: MIT](https://img.shields.io/badge/Code-MIT-green?style=flat-square)](LICENSE)
 [![License: CC BY 4.0](https://img.shields.io/badge/Graphics-CC%20BY%204.0-lightgrey?style=flat-square)](LICENSE-GRAPHICS)
 [![Twemoji](https://img.shields.io/badge/Emoji-Twemoji-blue?style=flat-square)](https://github.com/jdecked/twemoji)
+[![Three.js](https://img.shields.io/badge/3D-Three.js-black?style=flat-square&logo=threedotjs)](https://threejs.org)
 
 
 [![Preview](app/twitter-image.png)](https://emoji3d.org)
 
-Generate customizable 3D emoji assets from [Twemoji](https://github.com/jdecked/twemoji) SVGs. Choose from multiple shape presets (coins, speech bubbles), tweak every parameter, preview in real-time, and export as GLB, OBJ, STL, or USDZ — all in your browser. Includes a CLI for batch generation.
+Generate customizable 3D emoji assets from [Twemoji](https://github.com/jdecked/twemoji) SVGs, built with [Three.js](https://threejs.org). Choose from multiple shape presets (coins, speech bubbles), tweak every parameter, preview in real-time, and export as GLB, OBJ, STL, or USDZ — all in your browser. Includes a CLI for batch generation.
 
 Pre-generated packs of all 4,009 emojis in **bubble**, **coin**, and **flat** shapes are also [available for download](https://github.com/wangyz1999/3d-emoji-assets-generator?tab=readme-ov-file#download-pre-generated-assets)
 
