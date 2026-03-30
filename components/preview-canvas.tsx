@@ -84,6 +84,8 @@ function SceneContent({
   const [, setVersion] = useState(0);
   const selectedEmoji = useAppStore((s) => s.selectedEmoji);
   const styleConfig = useAppStore((s) => s.styleConfig);
+  const colorOverrides = useAppStore((s) => s.colorOverrides);
+  const setEmojiColors = useAppStore((s) => s.setEmojiColors);
 
   useEffect(() => {
     wireframeRef.current = wireframe;
@@ -106,18 +108,30 @@ function SceneContent({
 
     try {
       let model: THREE.Group;
+      let colors: string[] = [];
       if (styleConfig.shape === "coin") {
-        model = await buildCoin(styleConfig, selectedEmoji.url);
+        const result = await buildCoin(styleConfig, selectedEmoji.url, colorOverrides);
+        model = result.group;
+        colors = result.colors;
       } else if (styleConfig.shape === "bubble") {
-        model = await buildBubble(styleConfig, selectedEmoji.url);
+        const result = await buildBubble(styleConfig, selectedEmoji.url, colorOverrides);
+        model = result.group;
+        colors = result.colors;
       } else if (styleConfig.shape === "pin") {
-        model = await buildPin(styleConfig, selectedEmoji.url);
+        const result = await buildPin(styleConfig, selectedEmoji.url, colorOverrides);
+        model = result.group;
+        colors = result.colors;
       } else if (styleConfig.shape === "badge") {
-        model = await buildBadge(styleConfig, selectedEmoji.url);
+        const result = await buildBadge(styleConfig, selectedEmoji.url, colorOverrides);
+        model = result.group;
+        colors = result.colors;
       } else {
-        model = await buildFlat(styleConfig, selectedEmoji.url);
+        const result = await buildFlat(styleConfig, selectedEmoji.url, colorOverrides);
+        model = result.group;
+        colors = result.colors;
       }
 
+      setEmojiColors(colors);
       applyWireframe(model, wireframeRef.current);
       modelRef.current = model;
       if (groupRef.current) {
@@ -128,7 +142,7 @@ function SceneContent({
     } catch (err) {
       console.error("Failed to build model:", err);
     }
-  }, [selectedEmoji, styleConfig, onModelReady]);
+  }, [selectedEmoji, styleConfig, colorOverrides, onModelReady, setEmojiColors]);
 
   useEffect(() => {
     buildModel();

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAppStore } from "@/lib/store";
 import { DEFAULT_COIN, DEFAULT_BUBBLE, DEFAULT_PIN, DEFAULT_BADGE, DEFAULT_FLAT } from "@/lib/constants";
 import type { StyleConfig, CoinStyle, BubbleStyle, PinStyle, BadgeStyle, FlatStyle } from "@/lib/types";
@@ -538,6 +538,81 @@ function FlatControls({ config }: { config: FlatStyle }) {
   );
 }
 
+function EmojiColorPalette() {
+  const { emojiColors, colorOverrides, setColorOverride, resetColorOverrides } =
+    useAppStore();
+  const hiddenInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
+
+  if (emojiColors.length === 0) return null;
+
+  // Group path indices by their original color so we show one swatch per
+  // unique color and override all paths of that color together.
+  const colorGroups: { color: string; indices: number[] }[] = [];
+  const seen = new Map<string, number>();
+  for (let i = 0; i < emojiColors.length; i++) {
+    const c = emojiColors[i].toLowerCase();
+    if (seen.has(c)) {
+      colorGroups[seen.get(c)!].indices.push(i);
+    } else {
+      seen.set(c, colorGroups.length);
+      colorGroups.push({ color: c, indices: [i] });
+    }
+  }
+
+  const hasOverrides = Object.keys(colorOverrides).length > 0;
+
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="flex items-center justify-between">
+        <span className="text-[11px] font-medium text-zinc-400">
+          Emoji Colors ({colorGroups.length})
+        </span>
+        {hasOverrides && (
+          <button
+            onClick={resetColorOverrides}
+            className="rounded bg-zinc-800 px-2 py-0.5 text-[10px] font-medium text-zinc-400 transition-colors hover:bg-zinc-700 hover:text-white"
+          >
+            Reset
+          </button>
+        )}
+      </div>
+      <div className="flex flex-wrap gap-1.5">
+        {colorGroups.map(({ color, indices }) => {
+          const effective = colorOverrides[indices[0]] ?? color;
+          const isOverridden = indices[0] in colorOverrides;
+          const key = color;
+          return (
+            <div key={key} className="relative">
+              <button
+                onClick={() => hiddenInputRefs.current[key]?.click()}
+                className={`h-6 w-6 rounded border transition-shadow ${
+                  isOverridden
+                    ? "border-blue-400 shadow-[0_0_4px_rgba(96,165,250,0.5)]"
+                    : "border-zinc-600 hover:border-zinc-400"
+                }`}
+                style={{ backgroundColor: effective }}
+                title={`${color}${isOverridden ? ` → ${effective}` : ""}`}
+              />
+              <input
+                ref={(el) => { hiddenInputRefs.current[key] = el; }}
+                type="color"
+                value={effective}
+                onChange={(e) => {
+                  for (const idx of indices) {
+                    setColorOverride(idx, e.target.value);
+                  }
+                }}
+                className="invisible absolute h-0 w-0"
+                tabIndex={-1}
+              />
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function ShapeControls() {
   const { styleConfig } = useAppStore();
 
@@ -583,16 +658,18 @@ export default function StyleEditor() {
             </button>
           </div>
           {controlsOpen && (
-            <div className="border-t border-zinc-700/50 pt-3">
+            <div className="flex flex-col gap-3 border-t border-zinc-700/50 pt-3">
               <ShapeControls />
+              <EmojiColorPalette />
             </div>
           )}
         </>
       ) : (
         <>
           <ShapeToggle />
-          <div className="border-t border-zinc-700/50 pt-3">
+          <div className="flex flex-col gap-3 border-t border-zinc-700/50 pt-3">
             <ShapeControls />
+            <EmojiColorPalette />
           </div>
         </>
       )}
