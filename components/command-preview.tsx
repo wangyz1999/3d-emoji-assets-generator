@@ -28,6 +28,7 @@ export default function CommandPreview() {
       parts.push(`--metalness ${styleConfig.metalness}`);
       parts.push(`--roughness ${styleConfig.roughness}`);
       parts.push(`--emoji-scale ${styleConfig.emojiScale}`);
+      parts.push(`--curve-segments ${styleConfig.curveSegments}`);
       if (!styleConfig.doubleSided) parts.push("--single-sided");
     } else if (styleConfig.shape === "bubble") {
       parts.push(`--radius ${styleConfig.radius}`);
@@ -38,6 +39,7 @@ export default function CommandPreview() {
       parts.push(`--bevel-size ${styleConfig.bevelSize}`);
       parts.push(`--roughness ${styleConfig.roughness}`);
       parts.push(`--emoji-scale ${styleConfig.emojiScale}`);
+      parts.push(`--curve-segments ${styleConfig.curveSegments}`);
       if (!styleConfig.doubleSided) parts.push("--single-sided");
     } else if (styleConfig.shape === "pin") {
       parts.push(`--pin-radius ${styleConfig.pinRadius}`);
@@ -49,6 +51,7 @@ export default function CommandPreview() {
       parts.push(`--metalness ${styleConfig.metalness}`);
       parts.push(`--roughness ${styleConfig.roughness}`);
       parts.push(`--emoji-scale ${styleConfig.emojiScale}`);
+      parts.push(`--curve-segments ${styleConfig.curveSegments}`);
       if (!styleConfig.doubleSided) parts.push("--single-sided");
     } else if (styleConfig.shape === "badge") {
       parts.push(`--sides ${styleConfig.sides}`);
@@ -61,12 +64,14 @@ export default function CommandPreview() {
       parts.push(`--metalness ${styleConfig.metalness}`);
       parts.push(`--roughness ${styleConfig.roughness}`);
       parts.push(`--emoji-scale ${styleConfig.emojiScale}`);
+      parts.push(`--curve-segments ${styleConfig.curveSegments}`);
       if (!styleConfig.doubleSided) parts.push("--single-sided");
     } else if (styleConfig.shape === "flat") {
       parts.push(`--depth ${styleConfig.depth}`);
       parts.push(`--metalness ${styleConfig.metalness}`);
       parts.push(`--roughness ${styleConfig.roughness}`);
       parts.push(`--emoji-scale ${styleConfig.emojiScale}`);
+      parts.push(`--curve-segments ${styleConfig.curveSegments}`);
     }
 
     if (mergeMaterials) parts.push("--merge-materials");
