@@ -90,6 +90,18 @@ For all available flags and per-shape style parameters, see the **[CLI Reference
 
 > You can also view the full parameter list interactively in the web app — the **CLI Command** panel at the bottom of the left sidebar shows a live command that reflects your current settings.
 
+## Single-Material Export (Merge Materials)
+
+By default, exported models bake **all colors into one texture atlas** so the `.glb` uses a **single material**. This is critical for game engines like **Unreal Engine** and **Unity**, where each material creates a separate draw call — an emoji like the astronaut would otherwise produce 13+ materials.
+
+Enable the "Merge into single material" toggle in the web app, or add `--merge-materials` in the CLI:
+
+```bash
+npm run generate -- --shape coin --emojis astronaut --format glb --merge-materials --output ./output/
+```
+
+> Without this flag, each SVG color becomes its own material — fine for Blender editing, but impractical in game engines.
+
 ## Export Formats
 
 | Format   | Extension |

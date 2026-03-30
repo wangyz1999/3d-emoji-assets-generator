@@ -35,7 +35,7 @@ export const useAppStore = create<AppState>((set) => ({
   styleConfig: DEFAULT_FLAT,
   exportFormat: "glb",
   fileNaming: "unicode",
-  mergeMaterials: true,
+  mergeMaterials: false,
   emojiList: [],
   emojiListLoading: true,
   isExporting: false,

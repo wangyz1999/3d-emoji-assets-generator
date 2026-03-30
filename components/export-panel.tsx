@@ -19,6 +19,63 @@ function getExportFilename(
   return naming === "shortname" ? emoji.shortname : emoji.code;
 }
 
+function MergeMaterialsToggle({
+  checked,
+  onChange,
+}: {
+  checked: boolean;
+  onChange: (v: boolean) => void;
+}) {
+  const [showInfo, setShowInfo] = useState(false);
+
+  return (
+    <div className="flex items-center gap-2.5">
+      <button
+        onClick={() => onChange(!checked)}
+        className={`relative h-5 w-9 shrink-0 rounded-full transition-colors ${
+          checked ? "bg-blue-500" : "bg-zinc-600"
+        }`}
+      >
+        <span
+          className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-all ${
+            checked ? "left-[18px]" : "left-0.5"
+          }`}
+        />
+      </button>
+      <span
+        className="cursor-pointer text-xs text-zinc-300"
+        onClick={() => onChange(!checked)}
+      >
+        Merge into single material
+      </span>
+      <div
+        className="relative"
+        onMouseEnter={() => setShowInfo(true)}
+        onMouseLeave={() => setShowInfo(false)}
+      >
+        <div className="flex h-4 w-4 items-center justify-center rounded-full bg-zinc-700 text-[10px] font-bold text-zinc-400 transition-colors hover:bg-zinc-600 hover:text-white">
+          ?
+        </div>
+        {showInfo && (
+          <div className="absolute left-full top-1/2 z-50 ml-2 w-56 -translate-y-1/2 rounded-lg border border-zinc-700 bg-zinc-900 p-3 shadow-xl">
+            <p className="text-[11px] leading-relaxed text-zinc-300">
+              Bakes all colors into a <strong className="text-white">single texture atlas</strong> so the
+              exported model has <strong className="text-white">one material</strong> instead of one per
+              color.
+            </p>
+            <p className="mt-1.5 text-[11px] leading-relaxed text-zinc-400">
+              Recommended for <strong className="text-zinc-300">Unreal Engine</strong>,{" "}
+              <strong className="text-zinc-300">Unity</strong>, and other game engines where each material
+              adds a draw call. Turn off if you need per-color materials for editing in Blender.
+            </p>
+            <div className="absolute top-1/2 -left-1.5 h-3 w-3 -translate-y-1/2 rotate-45 border-b border-l border-zinc-700 bg-zinc-900" />
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function ExportPanel() {
   const {
     selectedEmoji,
@@ -101,26 +158,10 @@ export default function ExportPanel() {
         </div>
       </div>
 
-      <label
-        className="flex items-center gap-2 cursor-pointer"
-        title="Bake all colors into a single texture atlas so the exported model uses one material — ideal for game engines like Unreal / Unity"
-      >
-        <button
-          onClick={() => setMergeMaterials(!mergeMaterials)}
-          className={`relative h-4 w-7 rounded-full transition-colors ${
-            mergeMaterials ? "bg-blue-500" : "bg-zinc-600"
-          }`}
-        >
-          <span
-            className={`absolute top-0.5 h-3 w-3 rounded-full bg-white shadow-sm transition-all ${
-              mergeMaterials ? "left-[14px]" : "left-0.5"
-            }`}
-          />
-        </button>
-        <span className="text-[11px] text-zinc-400">
-          Merge into single material
-        </span>
-      </label>
+      <MergeMaterialsToggle
+        checked={mergeMaterials}
+        onChange={setMergeMaterials}
+      />
 
       <button
         onClick={handleExport}

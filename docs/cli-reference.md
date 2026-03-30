@@ -20,6 +20,34 @@ All examples use the `npm run generate --` shorthand. This is equivalent to runn
 | `--base-url` | no | `http://localhost:3000` | Dev server URL |
 | `--concurrency` | no | `4` | Number of emojis rendered in parallel (see [Concurrency](#concurrency)) |
 | `--emoji-source` | no | `local` | SVG source: `local` (`data/svg/`) or `remote` (jsDelivr CDN) — see [Local SVGs](#local-svgs) |
+| `--merge-materials` | no | off | Bake all colors into a single texture atlas — see [Merge Materials](#merge-materials) |
+
+---
+
+## Merge Materials
+
+Each emoji SVG path normally becomes its own material (e.g. the astronaut has ~13 unique colors → 13+ materials in the GLB). Game engines like **Unreal Engine** and **Unity** create a separate draw call per material, so importing these models is impractical at scale.
+
+`--merge-materials` solves this by:
+
+1. Collecting every unique color, roughness, metalness, and emissive value across the model.
+2. Building a tiny **color-palette texture atlas** (one pixel per unique color, with matching roughness/metalness and emissive textures).
+3. Remapping all mesh UVs to point at the correct pixel.
+4. Replacing all materials with a **single `MeshStandardMaterial`** that reads from these textures.
+
+The result is a GLB with **exactly one material** — no visual quality loss, just far fewer draw calls in-engine.
+
+> **Web app:** Enable the "Merge into single material" toggle in the export panel before downloading.
+
+```bash
+# Single emoji with merged materials
+npm run generate -- --shape coin --emojis astronaut --format glb --merge-materials --output ./output/
+
+# Batch — all emojis, single material each
+npm run generate -- --shape bubble --emojis all --format glb --merge-materials --output ./output/bubble/
+```
+
+> **Tip:** Omit `--merge-materials` if you plan to edit materials in Blender — the per-color materials are easier to tweak individually.
 
 ---
 
