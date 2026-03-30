@@ -10,6 +10,13 @@
 
 Generate customizable 3D emoji assets from [Twemoji](https://github.com/jdecked/twemoji) SVGs. Choose from multiple shape presets (coins, speech bubbles), tweak every parameter, preview in real-time, and export as GLB, OBJ, STL, or USDZ — all in your browser. Includes a CLI for batch generation.
 
+<details>
+<summary><strong>How it works</strong></summary>
+
+Each Twemoji SVG is parsed into individual color paths. Every path is extruded into 3D geometry via `ExtrudeGeometry`, layered with small Z offsets to preserve draw order. The emoji group is then mounted onto a shape base (coin, bubble, pin, badge) or exported standalone (flat). On export, an optional **merge-materials** pass bakes all colors into a single texture atlas — one pixel per unique color — and remaps UVs so the final GLB has exactly one material, ready for game engines.
+
+</details>
+
 [![Visit the Live App HERE](https://img.shields.io/badge/🚀_Visit_The_Live_App_Here->>>_emoji3d.org_<<<-red?style=for-the-badge)](https://emoji3d.org)
 
 
