@@ -6,7 +6,7 @@
 [![Twemoji](https://img.shields.io/badge/Emoji-Twemoji-blue?style=flat-square)](https://github.com/jdecked/twemoji)
 
 <p align="center">
-  <img src="app/social.png" alt="3D Emoji Generator Social Preview" width="640" />
+  <img src="app/social.png" alt="3D Emoji Generator Social Preview" width="720" />
 </p>
 
 Generate customizable 3D emoji assets from [Twemoji](https://github.com/jdecked/twemoji) SVGs. Choose from multiple shape presets (coins, speech bubbles), tweak every parameter, preview in real-time, and export as GLB, OBJ, STL, or USDZ — all in your browser. Includes a CLI for batch generation.
@@ -15,8 +15,9 @@ Generate customizable 3D emoji assets from [Twemoji](https://github.com/jdecked/
 
 
 <p align="center">
-  <img src="app/app_screenshot.png" alt="3D Emoji Generator Social Preview" width="640" />
+  <img src="app/app_screenshot.png" alt="3D Emoji Generator Social Preview" width="720" />
 </p>
+
 
 ## Download Pre-generated Assets
 
